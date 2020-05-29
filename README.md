@@ -8,7 +8,7 @@
 * 在直播间放入一个萌妹子，然后..额 除了会卖萌没啥用(随机播放设置好的动作&卖萌)
 # 如何使用
 ## 第一步 
-* 下载 [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/obs-plugins.zip)
+* 下载 [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/live2d_plugin.zip)
 * 解压缩文件把 live2d_plugin.dll 放入 obs-plugins/64bit/
 ## 第二步
 * 在OBS的根目录下创建Resources文件夹

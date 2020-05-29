@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -97,26 +97,14 @@ public:
     *
     */
     virtual void MotionEventFired(const Live2D::Cubism::Framework::csmString& eventValue);
-
-    /**
-     * @brief    当たり判定テスト。<br>
-     *            指定IDの頂点リストから矩形を計算し、座標が矩形範囲内か判定する。
-     *
-     * @param[in]   hitAreaName     当たり判定をテストする対象のID
-     * @param[in]   x               判定を行うX座標
-     * @param[in]   y               判定を行うY座標
-     */
-    virtual Csm::csmBool HitTest(const Csm::csmChar* hitAreaName, Csm::csmFloat32 x, Csm::csmFloat32 y);
-
     /**
      * @brief   別ターゲットに描画する際に使用するバッファの取得
      */
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2& GetRenderBuffer();
 
-    /**
-    * @brief 获取文件名
-    */
-    const char* GetModelFileName();
+    void SetRandomMotion(bool _randomMotion);
+
+    void SetDelayTime(Csm::csmFloat32 _dt);
 
 protected:
     /**
@@ -180,6 +168,8 @@ private:
     Csm::csmMap<Csm::csmString, Csm::ACubismMotion*>   _expressions; ///< 読み込まれている表情のリスト
     Csm::csmVector<Csm::csmRectF> _hitArea;
     Csm::csmVector<Csm::csmRectF> _userArea;
+    Csm::csmBool Random_Motion;
+    Csm::csmFloat32 _delayTime;
     const Csm::CubismId* _idParamAngleX; ///< パラメータID: ParamAngleX
     const Csm::CubismId* _idParamAngleY; ///< パラメータID: ParamAngleX
     const Csm::CubismId* _idParamAngleZ; ///< パラメータID: ParamAngleX

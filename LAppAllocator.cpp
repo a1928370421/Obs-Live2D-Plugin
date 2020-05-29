@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -7,11 +7,13 @@
 
 #include "LAppAllocator.hpp"
 
+#define UNKNOW_HEAP_OW 3
+
 using namespace Csm;
 
 void* LAppAllocator::Allocate(const csmSizeType  size)
 {
-    return malloc(size);
+	return malloc(size * UNKNOW_HEAP_OW);
 }
 
 void LAppAllocator::Deallocate(void* memory)

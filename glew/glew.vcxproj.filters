@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="E:\obspl\obs-studio-master\plugins\live2d-plugin\thirdParty\glew\src\glew.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="E:\obspl\obs-studio-master\plugins\live2d-plugin\thirdParty\glew\include\GL\wglew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="E:\obspl\obs-studio-master\plugins\live2d-plugin\thirdParty\glew\include\GL\glew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="E:\obspl\obs-studio-master\plugins\live2d-plugin\thirdParty\glew\include\GL\glxew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="E:\obspl\obs-studio-master\plugins\live2d-plugin\thirdParty\glew\build\cmake\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="E:\obspl\obs-studio-master\plugins\live2d-plugin\thirdParty\glew\build\glew.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{46C12762-051A-38E1-BD09-0A950F111E2B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{82E6ADB5-CEC4-3E90-8AE4-DC720E2A103A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

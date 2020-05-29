@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-#include "LAppView.hpp"
+#include "View.hpp"
 #include <math.h>
 #include <string>
 #include "LAppPal.hpp"
@@ -18,9 +18,8 @@
 using namespace std;
 using namespace LAppDefine;
 
-LAppView::LAppView():
-    _programId(0),
-    _renderTarget(SelectTarget_None)
+View::View():
+    _programId(0), _renderTarget(SelectTarget_None)
 {
     _clearColor[0] = 1.0f;
     _clearColor[1] = 1.0f;
@@ -34,14 +33,14 @@ LAppView::LAppView():
     _viewMatrix = new CubismViewMatrix();
 }
 
-LAppView::~LAppView()
+View::~View()
 {
     _renderBuffer.DestroyOffscreenFrame();
     delete _viewMatrix;
     delete _deviceToScreen;
 }
 
-void LAppView::Initialize()
+void View::Initialize()
 {
     int width, height;
 
@@ -79,96 +78,101 @@ void LAppView::Initialize()
     );
 }
 
-void LAppView::Render()
+void View::Render()
 {
     LAppLive2DManager* Live2DManager = LAppLive2DManager::GetInstance();
 
-    // Cubism更新・描画
+    int width, height;
+    width = VtuberDelegate::GetInstance()->getBufferWidth();
+    height = VtuberDelegate::GetInstance()->getBufferHeight();
+    double x, y, scale;
+    x = VtuberDelegate::GetInstance()->GetX();
+    y = VtuberDelegate::GetInstance()->GetY();
+    scale = VtuberDelegate::GetInstance()->getScale();
+    _viewMatrix->Scale(scale, scale * static_cast<float>(width) /static_cast<float>(height));
+    _viewMatrix->Translate(x, y);
+
     Live2DManager->OnUpdate();
    
 }
 
-Csm::CubismViewMatrix *LAppView::GetViewMatrix()
+float View::TransformViewX(float deviceX) const
 {
-	return _viewMatrix;
+    float screenX = _deviceToScreen->TransformX(deviceX);
+    return _viewMatrix->InvertTransformX(screenX); 
 }
 
-float LAppView::TransformViewX(float deviceX) const
+float View::TransformViewY(float deviceY) const
 {
-    float screenX = _deviceToScreen->TransformX(deviceX); // 論理座標変換した座標を取得。
-    return _viewMatrix->InvertTransformX(screenX); // 拡大、縮小、移動後の値。
+    float screenY = _deviceToScreen->TransformY(deviceY);
+    return _viewMatrix->InvertTransformY(screenY); 
 }
 
-float LAppView::TransformViewY(float deviceY) const
-{
-    float screenY = _deviceToScreen->TransformY(deviceY); // 論理座標変換した座標を取得。
-    return _viewMatrix->InvertTransformY(screenY); // 拡大、縮小、移動後の値。
-}
-
-float LAppView::TransformScreenX(float deviceX) const
+float View::TransformScreenX(float deviceX) const
 {
     return _deviceToScreen->TransformX(deviceX);
 }
 
-float LAppView::TransformScreenY(float deviceY) const
+float View::TransformScreenY(float deviceY) const
 {
     return _deviceToScreen->TransformY(deviceY);
 }
 
-void LAppView::PreModelDraw(LAppModel& refModel)
+void View::PreModelDraw(LAppModel& refModel)
 {
-    // 別のレンダリングターゲットへ向けて描画する場合の使用するフレームバッファ
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2* useTarget = NULL;
 
     if (_renderTarget != SelectTarget_None)
-    {// 別のレンダリングターゲットへ向けて描画する場合
-
-        // 使用するターゲット
+    {
         useTarget = (_renderTarget == SelectTarget_ViewFrameBuffer) ? &_renderBuffer : &refModel.GetRenderBuffer();
 
         if (!useTarget->IsValid())
-        {// 描画ターゲット内部未作成の場合はここで作成
+        {
             int width, height;
 	    width = VtuberDelegate::GetInstance()->getBufferWidth();
 	    height = VtuberDelegate::GetInstance()->getBufferHeight();
             if (width != 0 && height != 0)
             {
-                // モデル描画キャンバス
+                
                 useTarget->CreateOffscreenFrame(static_cast<csmUint32>(width), static_cast<csmUint32>(height));
             }
         }
 
-        // レンダリング開始
         useTarget->BeginDraw();
-        useTarget->Clear(_clearColor[0], _clearColor[1], _clearColor[2], _clearColor[3]); // 背景クリアカラー
+        useTarget->Clear(_clearColor[0], _clearColor[1], _clearColor[2], _clearColor[3]); 
+    } else
+    {
+	    glClearColor(_clearColor[0], _clearColor[1], _clearColor[2],_clearColor[3]);
+	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 }
 
-void LAppView::PostModelDraw(LAppModel& refModel)
+void View::PostModelDraw(LAppModel& refModel)
 {
-    // 別のレンダリングターゲットへ向けて描画する場合の使用するフレームバッファ
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2* useTarget = NULL;
 
     if (_renderTarget != SelectTarget_None)
-    {// 別のレンダリングターゲットへ向けて描画する場合
-
-        // 使用するターゲット
+    {
         useTarget = (_renderTarget == SelectTarget_ViewFrameBuffer) ? &_renderBuffer : &refModel.GetRenderBuffer();
-
-        // レンダリング終了
+     
         useTarget->EndDraw();
-    }
+    } 
 }
 
-void LAppView::SwitchRenderingTarget(SelectTarget targetType)
+void View::SwitchRenderingTarget(SelectTarget targetType)
 {
     _renderTarget = targetType;
 }
 
-void LAppView::SetRenderTargetClearColor(float r, float g, float b)
+void View::SetRenderTargetClearColor(float r, float g, float b)
 {
     _clearColor[0] = r;
     _clearColor[1] = g;
     _clearColor[2] = b;
+}
+
+Csm::CubismViewMatrix * View::GetViewMatrix()
+{
+	return _viewMatrix;
 }
 

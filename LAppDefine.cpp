@@ -28,12 +28,7 @@ namespace LAppDefine {
     const csmChar *ResourcesPath = "Resources/";
 
     // 外部定義ファイル(json)と合わせる
-    const csmChar* MotionGroupIdle = "Idle"; // アイドリング
-    const csmChar* MotionGroupTapBody = "TapBody"; // 体をタップしたとき
-
-    // 外部定義ファイル(json)と合わせる
-    const csmChar* HitAreaNameHead = "Head";
-    const csmChar* HitAreaNameBody = "Body";
+    const csmChar* MotionGroupIdle = ""; // アイドリング
 
     // モーションの優先度定数
     const csmInt32 PriorityNone = 0;
@@ -50,7 +45,7 @@ namespace LAppDefine {
 
 
     // デフォルトのレンダーターゲットサイズ
-    const csmInt32 RenderTargetWidth = 1000;
-    const csmInt32 RenderTargetHeight = 1900;
+    const csmInt32 RenderTargetWidth = 2000;
+    const csmInt32 RenderTargetHeight = 2000;
 
     }

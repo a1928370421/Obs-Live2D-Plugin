@@ -6,7 +6,7 @@
 #include "VtuberDelegate.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "LAppView.hpp"
+#include "View.hpp"
 #include "LAppPal.hpp"
 #include "LAppDefine.hpp"
 #include "LAppLive2DManager.hpp"
@@ -41,14 +41,13 @@ void VtuberDelegate::ReleaseInstance()
     s_instance = NULL;
 }
 
-bool VtuberDelegate::LoadResource(uint16_t windowWidth, uint16_t windowHeight)
+bool VtuberDelegate::LoadResource()
 {
-	_windowWidth = windowWidth;
-	_windowHeight = windowHeight;
 	if (!LAppPal::IsPathExist(ResourcesPath)) {
 		return false;
 	}
 	ModelFileCount = LAppPal::GetAllDirName(ResourcesPath, ModelFileName);
+
 	return true;
 }
 
@@ -99,8 +98,6 @@ bool VtuberDelegate::Initialize()
         return GL_FALSE;
     }
 
-    creatFrameBuffer();
-
     //AppViewの初期化
     _view->Initialize();
 
@@ -121,13 +118,12 @@ void VtuberDelegate::Release()
     {
         isINIT = false;
 
-	releaseFrameBuffer();
-
         glfwDestroyWindow(_window);
 
         glfwTerminate();
 
         delete _textureManager;
+
         delete _view;
 
         LAppLive2DManager::ReleaseInstance();
@@ -138,38 +134,6 @@ void VtuberDelegate::Release()
 
         ReleaseInstance();
     }  
-}
-
-void VtuberDelegate::creatFrameBuffer()
-{    
-    glGenFramebuffers(1, &fbuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbuffer);
-
-    // 生成纹理
-    unsigned int texColorBuffer;
-    glGenTextures(1, &texColorBuffer);
-    glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, RenderTargetWidth,
-		 RenderTargetHeight, 0,
-		 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // 将它附加到当前绑定的帧缓冲对象
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        LAppPal::PrintLog("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
-}
-
-void VtuberDelegate::releaseFrameBuffer()
-{
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDeleteFramebuffers(1, &fbuffer);
 }
 
 void VtuberDelegate::Reader(char *buffer)
@@ -183,13 +147,9 @@ void VtuberDelegate::Reader(char *buffer)
 	}
 	LAppPal::UpdateTime();
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearDepth(1.0);
-	
 	//描画更新
 	_view->Render();
-
+	
 	glReadPixels(0, 0, _windowWidth, _windowHeight, GL_RGBA,GL_UNSIGNED_BYTE,buffer);
 }
 
@@ -204,25 +164,56 @@ const char **VtuberDelegate::GetModelsName()
 }
 
 void VtuberDelegate::Resize(int width, int height) {
-	Resizeflag = true;	
-	_windowWidth = width;
-	_windowHeight = height;
+	if (width != _windowWidth || height != _windowHeight) {
+		Resizeflag = true;	
+		_windowWidth = width;
+		_windowHeight = height;
+	}
 }
 
-void VtuberDelegate::ChangeModel(int i)
+void VtuberDelegate::SetDelayTime(double _delaytime) {
+	if (isINIT)
+		LAppLive2DManager::GetInstance()->SetDelayTime(_delaytime);
+	delaytime = _delaytime;
+}
+
+void VtuberDelegate::SetRandomMotion(bool _Random_Motion) {
+	
+	if (isINIT && RandomMotion != _Random_Motion)
+		LAppLive2DManager::GetInstance()->SetRandomMotion(_Random_Motion);
+	RandomMotion = _Random_Motion;
+}
+
+void VtuberDelegate::ChangeModel(const char *ModelName)
 {
-    LAppLive2DManager::GetInstance()->ChangeScene(i);
+	if (ModelName == NULL) {		
+		return;
+	}
+		
+	if (ModelFileCount > 0)
+		for (int i = 0; i < ModelFileCount; i++) {
+			if (strcmp(ModelName, ModelFileName[i]) == 0) {
+				if (curentId != i) {
+					LAppLive2DManager::GetInstance()->ChangeScene(i);
+					curentId = i;
+				}					
+				break;
+			}
+		}	
 }
 
 VtuberDelegate::VtuberDelegate() :
     _cubismOption(),
-    _window(NULL)
+	  _window(NULL),
+	  isINIT(false),
+	  Resizeflag(false),
+	  ModelFileCount(0),
+	  curentId(0),
+	  RandomMotion(true),
+	  delaytime(5.0)
 {
-    _view = new LAppView();
+    _view = new View();
     _textureManager = new LAppTextureManager();
-    isINIT = false;
-    Resizeflag = false;
-    ModelFileCount = -1;
 }
 
 VtuberDelegate::~VtuberDelegate() {}

@@ -9,9 +9,9 @@
 #include "LAppAllocator.hpp"
 #include <GLFW/glfw3.h>
 
-#define MAXMODELCOUNT 10
+#define MAXMODELCOUNT 1024
 
-class LAppView;
+class View;
 class LAppTextureManager;
 /**
 * @brief   アプリケーションクラス。
@@ -32,8 +32,7 @@ public:
     /*
     *@breif 不处理opengl相关的初始化
     */
-    bool LoadResource(uint16_t windowWidth,uint16_t windowHeight);
-
+    bool LoadResource();
 
     void ReleaseResource();
 
@@ -59,19 +58,9 @@ public:
 
     void SetY(double _y);
 
-    LAppView* GetView() { return _view; }
+    View* GetView() { return _view; }
 
     LAppTextureManager* GetTextureManager() { return _textureManager; }
-
-    /**
-    * @brief 创建一个帧缓冲并且绑定
-    */
-    void creatFrameBuffer();
-
-     /**
-    * @brief 释放帧缓冲
-    */
-    void releaseFrameBuffer();
 
     /**
     * @brief 渲染一帧画面到指定缓冲
@@ -83,11 +72,15 @@ public:
     */
     int ModelCount();
 
-    void ChangeModel(int i);
+    void ChangeModel(const char *ModelName);
 
     const char** GetModelsName();
 
     void Resize(int width, int height);
+
+    void SetRandomMotion(bool _Random_Motion);
+
+    void SetDelayTime(double _delaytime);
 
 private:
     /**
@@ -113,7 +106,7 @@ private:
     LAppAllocator _cubismAllocator;              ///< Cubism SDK Allocator
     Csm::CubismFramework::Option _cubismOption;  ///< Cubism SDK Option
     GLFWwindow* _window;                         ///< OpenGL ウィンドウ
-    LAppView* _view;                             ///< View情報
+    View* _view;                             ///< View情報
     LAppTextureManager* _textureManager;         ///< テクスチャマネージャー
 
     int _windowWidth;                            ///< Initialize関数で設定したウィンドウ幅
@@ -128,11 +121,15 @@ private:
     int ModelFileCount;				///模型数量
 
     double Scale;
-
     double viewPoint_x;
     double viewPoint_y;
+    double delaytime;
 
     bool Resizeflag;
+    bool RandomMotion;
+
+
+    uint16_t curentId;
     };
  
 

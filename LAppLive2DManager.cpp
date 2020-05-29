@@ -14,7 +14,9 @@
 #include "LAppDefine.hpp"
 #include "VtuberDelegate.hpp"
 #include "LAppModel.hpp"
-#include "LAppView.hpp"
+#include "View.hpp"
+
+//#define USE_RENDER_TARGET
 
 using namespace Csm;
 using namespace LAppDefine;
@@ -49,9 +51,9 @@ void LAppLive2DManager::ReleaseInstance()
     s_instance = NULL;
 }
 
-LAppLive2DManager::LAppLive2DManager()
-    : _viewMatrix(NULL)
-    , _sceneIndex(0)
+LAppLive2DManager::LAppLive2DManager() :
+	_sceneIndex(0),
+	Random_Motion(true)
 {
     ChangeScene(_sceneIndex);
 }
@@ -84,21 +86,13 @@ LAppModel* LAppLive2DManager::GetModel(csmUint32 no) const
 void LAppLive2DManager::OnUpdate() const
 {
     CubismMatrix44 projection;
-    int width, height;
-    width = VtuberDelegate::GetInstance()->getBufferWidth();
-    height = VtuberDelegate::GetInstance()->getBufferHeight();
-    double x, y, scale;
-    x = VtuberDelegate::GetInstance()->GetX();
-    y = VtuberDelegate::GetInstance()->GetY();
-    scale = VtuberDelegate::GetInstance()->getScale();
 
-    projection.Scale(scale, scale*static_cast<float>(width) /static_cast<float>(height));
-
-    projection.Translate(x,y);
+    Csm::CubismViewMatrix *_viewMatrix;
+    _viewMatrix = VtuberDelegate::GetInstance()->GetView()->GetViewMatrix();
 
     if (_viewMatrix != NULL)
     {
-        projection.MultiplyByMatrix(_viewMatrix);
+	projection.MultiplyByMatrix(_viewMatrix);	
     }
 
     const CubismMatrix44   saveProjection = projection;
@@ -109,7 +103,10 @@ void LAppLive2DManager::OnUpdate() const
         projection = saveProjection;
 
 	VtuberDelegate::GetInstance()->GetView()->PreModelDraw(*model);
+	
 
+	model->SetRandomMotion(Random_Motion);
+	model->SetDelayTime(_delayTime);
         model->Update();
         model->Draw(projection);
 
@@ -144,14 +141,14 @@ void LAppLive2DManager::ChangeScene(Csm::csmInt32 index)
      */
     {
 #if defined(USE_RENDER_TARGET)
-        // LAppViewの持つターゲットに描画を行う場合、こちらを選択
-        LAppView::SelectTarget useRenderTarget = LAppView::SelectTarget_ViewFrameBuffer;
+        // Viewの持つターゲットに描画を行う場合、こちらを選択
+        View::SelectTarget useRenderTarget = View::SelectTarget_ViewFrameBuffer;
 #elif defined(USE_MODEL_RENDER_TARGET)
         // 各LAppModelの持つターゲットに描画を行う場合、こちらを選択
-        LAppView::SelectTarget useRenderTarget = LAppView::SelectTarget_ModelFrameBuffer;
+        View::SelectTarget useRenderTarget = View::SelectTarget_ModelFrameBuffer;
 #else
         // デフォルトのメインフレームバッファへレンダリングする(通常)
-        LAppView::SelectTarget useRenderTarget = LAppView::SelectTarget_None;
+        View::SelectTarget useRenderTarget = View::SelectTarget_None;
 #endif
 
 #if defined(USE_RENDER_TARGET) || defined(USE_MODEL_RENDER_TARGET)
@@ -170,3 +167,12 @@ void LAppLive2DManager::ChangeScene(Csm::csmInt32 index)
 		clearColor[0], clearColor[1], clearColor[2]);
     }
 }
+
+void LAppLive2DManager::SetRandomMotion(csmBool _Random_Motion) {
+	Random_Motion = _Random_Motion;
+}
+
+void LAppLive2DManager::SetDelayTime(Csm::csmFloat32 delayTime) {
+	_delayTime = delayTime;
+}
+

@@ -14,19 +14,14 @@ namespace {
     static bool isEnd;
 
     static std::mutex mut;
-
-    static int ModelInx;
-
-    static bool isChangeModel;
 }
 
-void VtuberFrameWork::InitVtuber(int bufferWidth, int bufferHeight)
+void VtuberFrameWork::InitVtuber()
 {    
     isFirst = true;
     isEnd = false; 
-    isChangeModel = false;
-    ModelInx = 0;
-    isLoad = VtuberDelegate::GetInstance()->LoadResource(bufferWidth,bufferHeight);
+
+    isLoad = VtuberDelegate::GetInstance()->LoadResource();
 }
 
 void VtuberFrameWork::ReanderVtuber(char * data)
@@ -44,11 +39,7 @@ void VtuberFrameWork::ReanderVtuber(char * data)
 	    VtuberDelegate::GetInstance()->Initialize();
         isFirst = false;
     }
-
-    if (isChangeModel) {
-	    VtuberDelegate::GetInstance()->ChangeModel(ModelInx);
-        isChangeModel = false;
-    }    
+ 
     VtuberDelegate::GetInstance()->Reader(data);
 
     }
@@ -60,6 +51,22 @@ void VtuberFrameWork::UinitVtuber()
     isEnd = true;
     if (isLoad)
 	    VtuberDelegate::GetInstance()->ReleaseResource();
+}
+
+void VtuberFrameWork::UpData(double _x, double _y, int width, int height,
+			     double sc,double _delayTime, bool randomMotion,const char *modelName)
+{
+	mut.lock();
+
+	VtuberDelegate::GetInstance()->SetX(_x);
+	VtuberDelegate::GetInstance()->SetY(_y);
+	VtuberDelegate::GetInstance()->Resize(width, height);
+	VtuberDelegate::GetInstance()->setScale(sc);
+	VtuberDelegate::GetInstance()->ChangeModel(modelName);
+	VtuberDelegate::GetInstance()->SetDelayTime(_delayTime);
+	VtuberDelegate::GetInstance()->SetRandomMotion(randomMotion);
+
+	mut.unlock();
 }
 
 int VtuberFrameWork::GetWidth()
@@ -82,16 +89,6 @@ int VtuberFrameWork::ModelNum()
 	return VtuberDelegate::GetInstance()->ModelCount();
 }
 
-void VtuberFrameWork::ChangeModel(int i)
-{
-    ModelInx = i;
-    isChangeModel = true;
-}
-
-void VtuberFrameWork::SetScale(double sc) {
-	VtuberDelegate::GetInstance()->setScale(sc);
-}
-
 double VtuberFrameWork::GetScale()
 {
 	return VtuberDelegate::GetInstance()->getScale();
@@ -102,23 +99,12 @@ double VtuberFrameWork::GetX()
 	return VtuberDelegate::GetInstance()->GetX();
 }
 
-void VtuberFrameWork::SetX(double _x)
-{
-	VtuberDelegate::GetInstance()->SetX(_x);
-}
-
 double VtuberFrameWork::GetY()
 {
 	return VtuberDelegate::GetInstance()->GetY();
 }
 
-void VtuberFrameWork::SetY(double _y)
-{
-	VtuberDelegate::GetInstance()->SetY(_y);
-}
 
-void VtuberFrameWork::Resize(int width, int height) {
-	VtuberDelegate::GetInstance()->Resize(width,height);
-}
+
 
 

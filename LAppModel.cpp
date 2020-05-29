@@ -21,6 +21,8 @@
 #include "LAppTextureManager.hpp"
 #include "VtuberDelegate.hpp"
 
+#define ALLMOTIONDISPLAY true
+
 using namespace Live2D::Cubism::Framework;
 using namespace Live2D::Cubism::Framework::DefaultParameterId;
 using namespace LAppDefine;
@@ -48,13 +50,15 @@ namespace {
 LAppModel::LAppModel()
     : CubismUserModel()
     , _modelSetting(NULL)
-    , _userTimeSeconds(0.0f)
+    , _userTimeSeconds(0.0f),
+     Random_Motion(true),
+	  _delayTime(5.0f)
 {
     if (DebugLogEnable)
     {
         _debugMode = true;
     }
-
+    
     _idParamAngleX = CubismFramework::GetIdManager()->GetId(ParamAngleX);
     _idParamAngleY = CubismFramework::GetIdManager()->GetId(ParamAngleY);
     _idParamAngleZ = CubismFramework::GetIdManager()->GetId(ParamAngleZ);
@@ -230,6 +234,7 @@ void LAppModel::SetupModel(ICubismModelSetting* setting)
 
     _model->SaveParameters();
 
+    
     for (csmInt32 i = 0; i < _modelSetting->GetMotionGroupCount(); i++)
     {
         const csmChar* group = _modelSetting->GetMotionGroupName(i);
@@ -249,7 +254,7 @@ void LAppModel::PreloadMotionGroup(const csmChar* group)
     for (csmInt32 i = 0; i < count; i++)
     {
         //ex) idle_0
-        csmString name = Utils::CubismString::GetFormatedString("%s_%d", group, i);
+	csmString name = _modelSetting->GetMotionFileName(group,i); //Utils::CubismString::GetFormatedString("%s_%d", group, i);
         csmString path = _modelSetting->GetMotionFileName(group, i);
         path = _modelHomeDir + path;
 
@@ -335,23 +340,18 @@ void LAppModel::Update()
     const csmFloat32 deltaTimeSeconds = LAppPal::GetDeltaTime();
     _userTimeSeconds += deltaTimeSeconds;
 
-    _dragManager->Update(deltaTimeSeconds);
-    _dragX = _dragManager->GetX();
-    _dragY = _dragManager->GetY();
-
     // モーションによるパラメータ更新の有無
     csmBool motionUpdated = false;
 
     //-----------------------------------------------------------------
     _model->LoadParameters(); // 前回セーブされた状態をロード
-    if (_motionManager->IsFinished())
-    {
-        // モーションの再生がない場合、待機モーションの中からランダムで再生する
-        StartRandomMotion(MotionGroupIdle, PriorityIdle);
-    }
-    else
-    {
-        motionUpdated = _motionManager->UpdateMotion(_model, deltaTimeSeconds); // モーションを更新
+    if (_motionManager->IsFinished()) {
+	    // モーションの再生がない場合、待機モーションの中からランダムで再生する
+	    if(Random_Motion)
+		    StartRandomMotion(MotionGroupIdle, PriorityIdle);	 
+    } else {
+	    motionUpdated = _motionManager->UpdateMotion(
+		    _model, deltaTimeSeconds); // モーションを更新
     }
     _model->SaveParameters(); // 状態を保存
     //-----------------------------------------------------------------
@@ -370,7 +370,7 @@ void LAppModel::Update()
     {
         _expressionManager->UpdateMotion(_model, deltaTimeSeconds); // 表情でパラメータ更新（相対変化）
     }
-
+    
     //ドラッグによる変化
     //ドラッグによる顔の向きの調整
     _model->AddParameterValue(_idParamAngleX, _dragX * 30); // -30から30の値を加える
@@ -389,6 +389,7 @@ void LAppModel::Update()
     {
         _breath->UpdateParameters(_model, deltaTimeSeconds);
     }
+    
 
     // 物理演算の設定
     if (_physics != NULL)
@@ -435,7 +436,7 @@ CubismMotionQueueEntryHandle LAppModel::StartMotion(const csmChar* group, csmInt
     const csmString fileName = _modelSetting->GetMotionFileName(group, no);
 
     //ex) idle_0
-    csmString name = Utils::CubismString::GetFormatedString("%s_%d", group, no);
+    csmString name = Utils::CubismString::GetFormatedString("%s_%d",group, no);
     CubismMotion* motion = static_cast<CubismMotion*>(_motions[name.GetRawString()]);
     csmBool autoDelete = false;
 
@@ -447,18 +448,23 @@ CubismMotionQueueEntryHandle LAppModel::StartMotion(const csmChar* group, csmInt
         csmByte* buffer;
         csmSizeInt size;
         buffer = CreateBuffer(path.GetRawString(), &size);
-        motion = static_cast<CubismMotion*>(LoadMotion(buffer, size, NULL, onFinishedMotionHandler));
+	motion = static_cast<CubismMotion*>(LoadMotion(buffer, size, NULL, onFinishedMotionHandler));
         csmFloat32 fadeTime = _modelSetting->GetMotionFadeInTimeValue(group, no);
         if (fadeTime >= 0.0f)
         {
             motion->SetFadeInTime(fadeTime);
-        }
+	} else {
+		motion->SetFadeInTime(_delayTime);
+	}
 
         fadeTime = _modelSetting->GetMotionFadeOutTimeValue(group, no);
         if (fadeTime >= 0.0f)
         {
             motion->SetFadeOutTime(fadeTime);
-        }
+	} else {
+		motion->SetFadeOutTime(_delayTime);
+	}
+
         motion->SetEffectIds(_eyeBlinkIds, _lipSyncIds);
         autoDelete = true; // 終了時にメモリから削除
 
@@ -486,14 +492,14 @@ CubismMotionQueueEntryHandle LAppModel::StartMotion(const csmChar* group, csmInt
 
 CubismMotionQueueEntryHandle LAppModel::StartRandomMotion(const csmChar* group, csmInt32 priority, ACubismMotion::FinishedMotionCallback onFinishedMotionHandler)
 {
-    if (_modelSetting->GetMotionCount(group) == 0)
-    {
-        return InvalidMotionQueueEntryHandleValue;
-    }
+	csmInt32 no;
+	if (_modelSetting->GetMotionCount(group) == 0)
+	{
+		return InvalidMotionQueueEntryHandleValue;
+	}
+	no = rand() % _modelSetting->GetMotionCount(group);
 
-    csmInt32 no = rand() % _modelSetting->GetMotionCount(group);
-
-    return StartMotion(group, no, priority, onFinishedMotionHandler);
+	return StartMotion(group, no, priority, onFinishedMotionHandler);
 }
 
 void LAppModel::DoDraw()
@@ -518,25 +524,6 @@ void LAppModel::Draw(CubismMatrix44& matrix)
     GetRenderer<Rendering::CubismRenderer_OpenGLES2>()->SetMvpMatrix(&matrix);
 
     DoDraw();
-}
-
-csmBool LAppModel::HitTest(const csmChar* hitAreaName, csmFloat32 x, csmFloat32 y)
-{
-    // 透明時は当たり判定なし。
-    if (_opacity < 1)
-    {
-        return false;
-    }
-    const csmInt32 count = _modelSetting->GetHitAreasCount();
-    for (csmInt32 i = 0; i < count; i++)
-    {
-        if (strcmp(_modelSetting->GetHitAreaName(i), hitAreaName) == 0)
-        {
-            const CubismIdHandle drawID = _modelSetting->GetHitAreaId(i);
-            return IsHit(drawID, x, y);
-        }
-    }
-    return false; // 存在しない場合はfalse
 }
 
 void LAppModel::SetExpression(const csmChar* expressionID)
@@ -627,11 +614,16 @@ Csm::Rendering::CubismOffscreenFrame_OpenGLES2& LAppModel::GetRenderBuffer()
     return _renderBuffer;
 }
 
-const char* LAppModel::GetModelFileName()
-{
-    if (_modelSetting)
-    {
-        return (const char * )_modelSetting->GetModelFileName();
-    }
-    return nullptr;
+void LAppModel::SetRandomMotion(bool _randomMotion) {
+	if (_randomMotion != Random_Motion) {
+		Random_Motion = _randomMotion;
+	}	
 }
+
+void LAppModel::SetDelayTime(csmFloat32 _dt) {
+	if (_delayTime != _dt) {
+		_delayTime = _dt;
+	}
+}
+
+

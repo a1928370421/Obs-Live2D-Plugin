@@ -19,92 +19,42 @@ class LAppModel;
 /**
 * @brief 描画クラス
 */
-class LAppView
+class View
 {
 public:
 
-    /**
-     * @brief LAppModelのレンダリング先
-     */
     enum SelectTarget
     {
         SelectTarget_None,                ///< デフォルトのフレームバッファにレンダリング
         SelectTarget_ModelFrameBuffer,    ///< LAppModelが各自持つフレームバッファにレンダリング
-        SelectTarget_ViewFrameBuffer,     ///< LAppViewの持つフレームバッファにレンダリング
+        SelectTarget_ViewFrameBuffer,     ///< Viewの持つフレームバッファにレンダリング
     };
 
-    /**
-    * @brief コンストラクタ
-    */
-    LAppView();
+    View();
 
-    /**
-    * @brief デストラクタ
-    */
-    ~LAppView();
+    ~View();
 
-    /**
-    * @brief 初期化する。
-    */
     void Initialize();
 
-    /**
-    * @brief 描画する。
-    */
     void Render();
 
-    Csm::CubismViewMatrix *GetViewMatrix();
-
-    /**
-    * @brief X座標をView座標に変換する。
-    *
-    * @param[in]       deviceX            デバイスX座標
-    */
     float TransformViewX(float deviceX) const;
 
-    /**
-    * @brief Y座標をView座標に変換する。
-    *
-    * @param[in]       deviceY            デバイスY座標
-    */
     float TransformViewY(float deviceY) const;
 
-    /**
-    * @brief X座標をScreen座標に変換する。
-    *
-    * @param[in]       deviceX            デバイスX座標
-    */
     float TransformScreenX(float deviceX) const;
 
-    /**
-    * @brief Y座標をScreen座標に変換する。
-    *
-    * @param[in]       deviceY            デバイスY座標
-    */
     float TransformScreenY(float deviceY) const;
 
-    /**
-     * @brief   モデル1体を描画する直前にコールされる
-     */
     void PreModelDraw(LAppModel& refModel);
 
-    /**
-     * @brief   モデル1体を描画した直後にコールされる
-     */
     void PostModelDraw(LAppModel& refModel);
 
-    /**
-     * @brief レンダリング先を切り替える
-     */
     void SwitchRenderingTarget(SelectTarget targetType);
 
-    /**
-     * @brief レンダリング先をデフォルト以外に切り替えた際の背景クリア色設定
-     * @param[in]   r   赤(0.0~1.0)
-     * @param[in]   g   緑(0.0~1.0)
-     * @param[in]   b   青(0.0~1.0)
-     */
     void SetRenderTargetClearColor(float r, float g, float b);
+
+     Csm::CubismViewMatrix *GetViewMatrix();
 
 private:
     Csm::CubismMatrix44* _deviceToScreen;    ///< デバイスからスクリーンへの行列

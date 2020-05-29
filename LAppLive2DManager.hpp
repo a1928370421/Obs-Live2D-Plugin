@@ -9,6 +9,7 @@
 
 #include <CubismFramework.hpp>
 #include <Math/CubismMatrix44.hpp>
+#include <Math/CubismViewMatrix.hpp>
 #include <Type/csmVector.hpp>
 
 class LAppModel;
@@ -62,6 +63,10 @@ public:
     */
     void ChangeScene(Csm::csmInt32 index);
 
+    void SetRandomMotion(Csm::csmBool _Random_Motion);
+
+    void SetDelayTime(Csm::csmFloat32 _delayTime);
+
 private:
     /**
     * @brief  コンストラクタ
@@ -73,7 +78,9 @@ private:
     */
     virtual ~LAppLive2DManager();
 
-    Csm::CubismMatrix44*        _viewMatrix; ///< モデル描画に用いるView行列
     Csm::csmVector<LAppModel*>  _models; ///< モデルインスタンスのコンテナ
-    Csm::csmInt32               _sceneIndex; ///< 表示するシーンのインデックス値    
+    Csm::csmInt32               _sceneIndex; ///< 表示するシーンのインデックス値
+
+    Csm::csmBool Random_Motion;
+    Csm::csmFloat32 _delayTime;
 };

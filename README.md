@@ -16,3 +16,5 @@
 # 效果展示
 * ![vt.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/vt.PNG)
 * ![vt2.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/vt2.PNG)
+# 如何编译
+* 施工中...

@@ -12,7 +12,7 @@
 * 解压缩文件把 live2d_plugin.dll 放入 obs-plugins/64bit/
 ## 第二步
 * 在OBS的根目录下创建Resources文件夹
-* 在创建好的Resources文件夹里放入Live2d导出的模型 (特别注意：模型文件夹的名称要和模型文件名一致 例：Hura/Hura.model3.json)
+* 在创建好的Resources文件夹里放入Live2d导出的模型 (特别注意：模型文件夹的名称要和模型文件名一致 例：Resources/Hura/Hura.model3.json)
 # 效果展示
 * ![vt.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/vt.PNG)
 * ![vt2.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/vt2.PNG)

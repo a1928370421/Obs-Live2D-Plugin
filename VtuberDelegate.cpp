@@ -41,19 +41,19 @@ void VtuberDelegate::ReleaseInstance()
     s_instance = NULL;
 }
 
-bool VtuberDelegate::LoadResource()
+bool VtuberDelegate::LoadResource(int id)
 {
 	if (!LAppPal::IsPathExist(ResourcesPath)) {
 		return false;
 	}
 	ModelFileCount = LAppPal::GetAllDirName(ResourcesPath, ModelFileName);
-
 	return true;
 }
 
-void VtuberDelegate::ReleaseResource() {
-
+void VtuberDelegate::ReleaseResource(int id) {
+	  LAppLive2DManager::GetInstance()->ReleaseModel(id);
 }
+
 
 bool VtuberDelegate::Initialize()
 {   VtuberCount++;
@@ -97,10 +97,7 @@ bool VtuberDelegate::Initialize()
         glfwTerminate();
         return GL_FALSE;
     }
-
-    //AppViewの初期化
-    _view->Initialize();
-
+    _view->Initialize(0);
     // Cubism SDK の初期化
     InitializeCubism();
     }
@@ -136,21 +133,21 @@ void VtuberDelegate::Release()
     }  
 }
 
-void VtuberDelegate::Reader(char *buffer)
+void VtuberDelegate::Reader(int id,char *buffer,int bufferWidth, int bufferheight)
 {
-	if (Resizeflag) {
-		Resizeflag = false;
-
-		_view->Initialize();
-
-		glViewport(0, 0, _windowWidth, _windowHeight);
+	if (_renderInfo[id].Resizeflag) {
+		_renderInfo[id].Resizeflag = false;
+		_view->Initialize(id);
+		glViewport(0, 0,_renderInfo[id]._windowWidth,_renderInfo[id]._windowHeight);
 	}
 	LAppPal::UpdateTime();
-
-	//描画更新
-	_view->Render();
 	
-	glReadPixels(0, 0, _windowWidth, _windowHeight, GL_RGBA,GL_UNSIGNED_BYTE,buffer);
+	//描画更新
+	_view->Render(id);
+	
+	glReadPixels(0, 0, _renderInfo[id]._windowWidth,
+		     _renderInfo[id]._windowHeight, GL_RGBA, GL_UNSIGNED_BYTE,
+		     buffer);
 }
 
 int VtuberDelegate::ModelCount()
@@ -163,54 +160,72 @@ const char **VtuberDelegate::GetModelsName()
 	return (const char**)ModelFileName;
 }
 
-void VtuberDelegate::Resize(int width, int height) {
-	if (width != _windowWidth || height != _windowHeight) {
-		Resizeflag = true;	
-		_windowWidth = width;
-		_windowHeight = height;
+void VtuberDelegate::Resize(int width, int height, int id)
+{
+	if (width != _renderInfo[id]._windowWidth ||
+	    height != _renderInfo[id]._windowHeight) {
+		_renderInfo[id].Resizeflag = true;	
+		_renderInfo[id]._windowWidth = width/32*32;
+		_renderInfo[id]._windowHeight = height;
+
+		_view->Initialize(id);
+	} else {
+		_renderInfo[id].Resizeflag = false;
 	}
 }
 
-void VtuberDelegate::SetDelayTime(double _delaytime) {
-	if (isINIT)
-		LAppLive2DManager::GetInstance()->SetDelayTime(_delaytime);
-	delaytime = _delaytime;
-}
-
-void VtuberDelegate::SetRandomMotion(bool _Random_Motion) {
-	
-	if (isINIT && RandomMotion != _Random_Motion)
-		LAppLive2DManager::GetInstance()->SetRandomMotion(_Random_Motion);
-	RandomMotion = _Random_Motion;
-}
-
-void VtuberDelegate::ChangeModel(const char *ModelName)
+void VtuberDelegate::SetDelayTime(double _delaytime, int id)
 {
-	if (ModelName == NULL) {		
+	_renderInfo[id].delaytime = _delaytime;
+}
+
+double VtuberDelegate::GetDelayTime(int id)
+{
+	return _renderInfo[id].delaytime;
+}
+
+uint16_t VtuberDelegate::GetSceneInx(int id)
+{
+	return _renderInfo[id].SceneIdx;
+}
+
+
+void VtuberDelegate::SetRandomMotion(bool _Random_Motion, int id)
+{
+	
+	if (isINIT && _renderInfo[id].RandomMotion != _Random_Motion)
+		_renderInfo[id].RandomMotion = _Random_Motion;
+}
+
+bool VtuberDelegate::GetRandomMotion(int id)
+{
+	return _renderInfo[id].RandomMotion;
+}
+
+void VtuberDelegate::ChangeModel(const char *ModelName, int id)
+{
+	if (ModelName == NULL) {
 		return;
 	}
 		
 	if (ModelFileCount > 0)
 		for (int i = 0; i < ModelFileCount; i++) {
 			if (strcmp(ModelName, ModelFileName[i]) == 0) {
-				if (curentId != i) {
-					LAppLive2DManager::GetInstance()->ChangeScene(i);
-					curentId = i;
+				if (_renderInfo[id].SceneIdx != i) {
+					LAppLive2DManager::GetInstance()
+						->ChangeScene(i, id);
+					_renderInfo[id].SceneIdx = i;
 				}					
 				break;
 			}
 		}	
 }
 
-VtuberDelegate::VtuberDelegate() :
-    _cubismOption(),
+VtuberDelegate::VtuberDelegate()
+	: _cubismOption(),
 	  _window(NULL),
 	  isINIT(false),
-	  Resizeflag(false),
-	  ModelFileCount(0),
-	  curentId(0),
-	  RandomMotion(true),
-	  delaytime(5.0)
+	  ModelFileCount(0)
 {
     _view = new View();
     _textureManager = new LAppTextureManager();
@@ -286,43 +301,44 @@ GLuint VtuberDelegate::CreateShader()
     return programId;
 }
 
-int VtuberDelegate::getBufferWidth()
+int VtuberDelegate::getBufferWidth(int id)
 {
-    return _windowWidth;
+	return _renderInfo[id]._windowWidth;
 }
 
-int VtuberDelegate::getBufferHeight()
+int VtuberDelegate::getBufferHeight(int id)
 {
-    return _windowHeight;
+	return _renderInfo[id]._windowHeight;
 }
 
-double VtuberDelegate::getScale()
+double VtuberDelegate::getScale(int id)
 {
-	return Scale;
+	return _renderInfo[id].Scale;
 }
 
-void VtuberDelegate::setScale(double _sc) {
-	Scale = _sc;
+void VtuberDelegate::setScale(double _sc, int id)
+{
+	_renderInfo[id].Scale = _sc;
 }
 
-double VtuberDelegate::GetX()
+double VtuberDelegate::GetX(int id)
 {
-	return viewPoint_x;
+	return _renderInfo[id].viewPoint_x;
 }
 
-void VtuberDelegate::SetX(double _x)
+void VtuberDelegate::SetX(double _x, int id)
 {
-	viewPoint_x = _x;
+	_renderInfo[id].viewPoint_x = _x;
 }
 
-double VtuberDelegate::GetY()
+double VtuberDelegate::GetY(int id)
 {
-	return viewPoint_y;
+	return _renderInfo[id].viewPoint_y;
 }
 
-void VtuberDelegate::SetY(double _y)
+void VtuberDelegate::SetY(double _y, int id)
 {
-	viewPoint_y = _y;
+	_renderInfo[id].viewPoint_y = _y;
 }
 
 bool VtuberDelegate::CheckShader(GLuint shaderId)

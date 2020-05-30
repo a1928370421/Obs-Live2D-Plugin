@@ -101,7 +101,7 @@ set(${APP_NAME}_SOURCES
 	LAppTextureManager.hpp
 	View.cpp	
 	VtuberFrameWork.cpp  	    
-	VtuberPluginFrameWork.cpp
+	VtuberPlugin.cpp
 	)
 
 set(${APP_NAME}_HEADERS
@@ -113,7 +113,7 @@ set(${APP_NAME}_HEADERS
 	LAppPal.hpp
 	View.hpp
 	VtuberFrameWork.hpp
-	VtuberPluginFrameWork.hpp)
+	VtuberPlugin.hpp)
 
 #find_package(Thread REQUIRED)
 

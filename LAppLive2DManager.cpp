@@ -51,75 +51,75 @@ void LAppLive2DManager::ReleaseInstance()
     s_instance = NULL;
 }
 
-LAppLive2DManager::LAppLive2DManager() :
-	_sceneIndex(0),
-	Random_Motion(true)
+LAppLive2DManager::LAppLive2DManager()
 {
-    ChangeScene(_sceneIndex);
+	ChangeScene(0,0);
 }
 
 LAppLive2DManager::~LAppLive2DManager()
 {
-    ReleaseAllModel();
+	for (size_t i = 0; i < 16; i++) {
+		ReleaseAllModel(i);
+	}
+    
 }
 
-void LAppLive2DManager::ReleaseAllModel()
+void LAppLive2DManager::ReleaseAllModel(Csm::csmUint16 id)
 {
-    for (csmUint32 i = 0; i < _models.GetSize(); i++)
+    for (csmUint32 i = 0; i < _modeldata[id]._models.GetSize(); i++)
     {
-        delete _models[i];
+		delete _modeldata[id]._models[i];
     }
-
-    _models.Clear();
+    _modeldata[id]._models.Clear();
 }
 
-LAppModel* LAppLive2DManager::GetModel(csmUint32 no) const
-{
-    if (no < _models.GetSize())
-    {
-        return _models[no];
-    }
+void LAppLive2DManager::ReleaseModel(Csm::csmUint16 id) {
+	for (csmUint32 i = 0; i < _modeldata[id]._models.GetSize();
+	     i++) {
+		delete _modeldata[id]._models[i];
+	}
+	_modeldata[id]._models.Clear();
+}
 
+LAppModel *LAppLive2DManager::GetModel(Csm::csmUint16 id) const
+{
+    if (0 < _modeldata[id]._models.GetSize())
+    {
+	return _modeldata[id]._models[0];
+    }
     return NULL;
 }
 
-void LAppLive2DManager::OnUpdate() const
-{
+void LAppLive2DManager::OnUpdate(Csm::csmUint16 id) const
+{    
     CubismMatrix44 projection;
-
-    Csm::CubismViewMatrix *_viewMatrix;
-    _viewMatrix = VtuberDelegate::GetInstance()->GetView()->GetViewMatrix();
+    CubismMatrix44 *_viewMatrix =VtuberDelegate::GetInstance()->GetView()->GetViewMatrix(id);
 
     if (_viewMatrix != NULL)
     {
 	projection.MultiplyByMatrix(_viewMatrix);	
     }
 
-    const CubismMatrix44   saveProjection = projection;
-    csmUint32 modelCount = _models.GetSize();
-    for (csmUint32 i = 0; i < modelCount; ++i)
-    {
-        LAppModel* model = GetModel(i);
-        projection = saveProjection;
+        LAppModel* model = GetModel(id);
 
-	VtuberDelegate::GetInstance()->GetView()->PreModelDraw(*model);
+	if (model) {
+		VtuberDelegate::GetInstance()->GetView()->PreModelDraw(*model,id);
 	
+		model->SetRandomMotion(VtuberDelegate::GetInstance()->GetRandomMotion(id));
+		model->SetDelayTime(VtuberDelegate::GetInstance()->GetDelayTime(id));
+		model->Update();
+		model->Draw(projection);
 
-	model->SetRandomMotion(Random_Motion);
-	model->SetDelayTime(_delayTime);
-        model->Update();
-        model->Draw(projection);
-
-	VtuberDelegate::GetInstance()->GetView()->PostModelDraw(*model);
-    }
+		VtuberDelegate::GetInstance()->GetView()->PostModelDraw(*model);
+	}
 }
 
-void LAppLive2DManager::ChangeScene(Csm::csmInt32 index)
+void LAppLive2DManager::ChangeScene(Csm::csmInt32 index, Csm::csmInt16 _id)
 {
-    _sceneIndex = index;
+    _modeldata[_id]._sceneIndex = index;
     if (DebugLogEnable)
     {
-        LAppPal::PrintLog("[APP]model index: %d", _sceneIndex);
+        //LAppPal::PrintLog("[APP]model index: %d", _sceneIndex);
     }
     const char **ModelDir = VtuberDelegate::GetInstance()->GetModelsName();
     // ModelDir[]に保持したディレクトリ名から
@@ -130,9 +130,10 @@ void LAppLive2DManager::ChangeScene(Csm::csmInt32 index)
     std::string modelJsonName = ModelDir[index];
     modelJsonName += ".model3.json";
 
-    ReleaseAllModel();
-    _models.PushBack(new LAppModel());
-    _models[0]->LoadAssets(modelPath.c_str(), modelJsonName.c_str());
+    //delete _models[id];
+    ReleaseAllModel(_id);
+    _modeldata[_id]._models.PushBack(new LAppModel());
+    _modeldata[_id]._models[0]->LoadAssets(modelPath.c_str(),modelJsonName.c_str());
 
     /*
      * モデル半透明表示を行うサンプルを提示する。
@@ -168,11 +169,4 @@ void LAppLive2DManager::ChangeScene(Csm::csmInt32 index)
     }
 }
 
-void LAppLive2DManager::SetRandomMotion(csmBool _Random_Motion) {
-	Random_Motion = _Random_Motion;
-}
-
-void LAppLive2DManager::SetDelayTime(Csm::csmFloat32 delayTime) {
-	_delayTime = delayTime;
-}
 

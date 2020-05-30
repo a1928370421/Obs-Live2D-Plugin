@@ -1,9 +1,3 @@
-/**
- * Copyright(c) Live2D Inc. All rights reserved.
- *
- * Use of this source code is governed by the Live2D Open Software license
- * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
- */
 
 #pragma once
 
@@ -14,11 +8,18 @@
 #include "CubismFramework.hpp"
 #include <Rendering/OpenGL/CubismOffscreenSurface_OpenGLES2.hpp>
 
+#define MAXVIEWDATA 16
+
 class LAppModel;
 
 /**
 * @brief 描画クラス
 */
+struct ViewData {
+	Csm::CubismViewMatrix *_viewMatrix;
+	Csm::CubismMatrix44 *_deviceToScreen;
+};
+
 class View
 {
 public:
@@ -34,19 +35,21 @@ public:
 
     ~View();
 
-    void Initialize();
+    void Initialize(int id);
 
-    void Render();
+    void Release(int id);
 
-    float TransformViewX(float deviceX) const;
+    void Render(int id);
 
-    float TransformViewY(float deviceY) const;
+    float TransformViewX(float deviceX,int id) const;
 
-    float TransformScreenX(float deviceX) const;
+    float TransformViewY(float deviceY,int id) const;
 
-    float TransformScreenY(float deviceY) const;
+    float TransformScreenX(float deviceX, int id) const;
 
-    void PreModelDraw(LAppModel& refModel);
+    float TransformScreenY(float deviceY, int id) const;
+
+    void PreModelDraw(LAppModel& refModel,int id);
 
     void PostModelDraw(LAppModel& refModel);
 
@@ -54,11 +57,11 @@ public:
 
     void SetRenderTargetClearColor(float r, float g, float b);
 
-     Csm::CubismViewMatrix *GetViewMatrix();
+     Csm::CubismViewMatrix *GetViewMatrix(int id);
 
 private:
-    Csm::CubismMatrix44* _deviceToScreen;    ///< デバイスからスクリーンへの行列
-    Csm::CubismViewMatrix* _viewMatrix;      ///< viewMatrix
+    ViewData _viewData[MAXVIEWDATA];
+
     GLuint _programId;                       ///< シェーダID
 
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2 _renderBuffer;   ///< モードによってはCubismモデル結果をこっちにレンダリング

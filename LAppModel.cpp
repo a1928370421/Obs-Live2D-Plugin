@@ -105,6 +105,28 @@ void LAppModel::LoadAssets(const csmChar* dir, const csmChar* fileName)
     SetupTextures();
 }
 
+void LAppModel::ReleaseAsset() {
+
+	DeleteRenderer();
+
+	_eyeBlinkIds.Clear(); 
+	_lipSyncIds.Clear(); 
+	_hitArea.Clear();
+	_userArea.Clear();
+
+	_renderBuffer.DestroyOffscreenFrame();
+
+	ReleaseMotions();
+	ReleaseExpressions();
+
+	for (csmInt32 i = 0; i < _modelSetting->GetMotionGroupCount(); i++) {
+		const csmChar *group = _modelSetting->GetMotionGroupName(i);
+		ReleaseMotionGroup(group);
+	}
+	delete (_modelSetting);
+}
+
+
 
 void LAppModel::SetupModel(ICubismModelSetting* setting)
 {
@@ -337,7 +359,7 @@ void LAppModel::ReleaseExpressions()
 
 void LAppModel::Update()
 {
-    const csmFloat32 deltaTimeSeconds = LAppPal::GetDeltaTime();
+    const csmFloat32 deltaTimeSeconds =_delayTime * LAppPal::GetDeltaTime();
     _userTimeSeconds += deltaTimeSeconds;
 
     // モーションによるパラメータ更新の有無
@@ -370,19 +392,13 @@ void LAppModel::Update()
     {
         _expressionManager->UpdateMotion(_model, deltaTimeSeconds); // 表情でパラメータ更新（相対変化）
     }
-    
+    /*
     //ドラッグによる変化
     //ドラッグによる顔の向きの調整
     _model->AddParameterValue(_idParamAngleX, _dragX * 30); // -30から30の値を加える
     _model->AddParameterValue(_idParamAngleY, _dragY * 30);
     _model->AddParameterValue(_idParamAngleZ, _dragX * _dragY * -30);
-
-    //ドラッグによる体の向きの調整
-    _model->AddParameterValue(_idParamBodyAngleX, _dragX * 10); // -10から10の値を加える
-
-    //ドラッグによる目の向きの調整
-    _model->AddParameterValue(_idParamEyeBallX, _dragX); // -1から1の値を加える
-    _model->AddParameterValue(_idParamEyeBallY, _dragY);
+    */
 
     // 呼吸など
     if (_breath != NULL)
@@ -430,7 +446,7 @@ CubismMotionQueueEntryHandle LAppModel::StartMotion(const csmChar* group, csmInt
         {
             LAppPal::PrintLog("[APP]can't start motion.");
         }
-        return InvalidMotionQueueEntryHandleValue;
+        //return InvalidMotionQueueEntryHandleValue;
     }
 
     const csmString fileName = _modelSetting->GetMotionFileName(group, no);
@@ -454,7 +470,7 @@ CubismMotionQueueEntryHandle LAppModel::StartMotion(const csmChar* group, csmInt
         {
             motion->SetFadeInTime(fadeTime);
 	} else {
-		motion->SetFadeInTime(_delayTime);
+		motion->SetFadeInTime(1.0f);
 	}
 
         fadeTime = _modelSetting->GetMotionFadeOutTimeValue(group, no);
@@ -462,9 +478,10 @@ CubismMotionQueueEntryHandle LAppModel::StartMotion(const csmChar* group, csmInt
         {
             motion->SetFadeOutTime(fadeTime);
 	} else {
-		motion->SetFadeOutTime(_delayTime);
+		motion->SetFadeOutTime(1.0f);
 	}
 
+	//motion->IsLoop(true);
         motion->SetEffectIds(_eyeBlinkIds, _lipSyncIds);
         autoDelete = true; // 終了時にメモリから削除
 
@@ -625,5 +642,6 @@ void LAppModel::SetDelayTime(csmFloat32 _dt) {
 		_delayTime = _dt;
 	}
 }
+
 
 

@@ -9,7 +9,7 @@
 #include "LAppAllocator.hpp"
 #include <GLFW/glfw3.h>
 
-#define MAXMODELCOUNT 1024
+#define MAXMODELCOUNT 16
 
 class View;
 class LAppTextureManager;
@@ -18,6 +18,22 @@ class LAppTextureManager;
 *   Cubism SDK の管理を行う。
 */
 class VtuberDelegate {
+
+	struct RenderInfo {
+
+		uint16_t SceneIdx;
+
+		double viewPoint_x;
+		double viewPoint_y;
+		int _windowWidth;
+		int _windowHeight; 				
+		double Scale;
+		double delaytime;
+
+		bool Resizeflag;
+		bool RandomMotion;
+	};
+
 public:
     /**
     * @brief   クラスのインスタンス（シングルトン）を返す。<br>
@@ -32,9 +48,9 @@ public:
     /*
     *@breif 不处理opengl相关的初始化
     */
-    bool LoadResource();
+    bool LoadResource(int id);
 
-    void ReleaseResource();
+    void ReleaseResource(int id);
 
     bool Initialize();
 
@@ -42,21 +58,21 @@ public:
 
     GLuint CreateShader();
 
-    int getBufferWidth();
+    int getBufferWidth(int id);
 
-    int getBufferHeight();
+    int getBufferHeight(int id);
 
-    double getScale();
+    double getScale(int id);
 
-    void setScale(double _sc);
+    void setScale(double _sc,int id);
 
-    double GetX();
+    double GetX(int id);
 
-    void SetX(double _x);
+    void SetX(double _x, int id);
 
-    double GetY();
+    double GetY(int id);
 
-    void SetY(double _y);
+    void SetY(double _y, int id);
 
     View* GetView() { return _view; }
 
@@ -65,22 +81,28 @@ public:
     /**
     * @brief 渲染一帧画面到指定缓冲
     */
-    void Reader(char* data);
+    void Reader(int targatid, char *data, int bufferWidth, int bufferheight);
 
     /**
     * @brief 返回模型数
     */
     int ModelCount();
 
-    void ChangeModel(const char *ModelName);
+    void ChangeModel(const char *ModelName, int id);
 
     const char** GetModelsName();
 
-    void Resize(int width, int height);
+    void Resize(int width, int height, int id);
 
-    void SetRandomMotion(bool _Random_Motion);
+    void SetRandomMotion(bool _Random_Motion, int id);
 
-    void SetDelayTime(double _delaytime);
+    bool GetRandomMotion(int id);
+
+    void SetDelayTime(double _delaytime,int id);
+
+    double GetDelayTime(int id);
+
+    uint16_t GetSceneInx(int id);
 
 private:
     /**
@@ -109,27 +131,12 @@ private:
     View* _view;                             ///< View情報
     LAppTextureManager* _textureManager;         ///< テクスチャマネージャー
 
-    int _windowWidth;                            ///< Initialize関数で設定したウィンドウ幅
-    int _windowHeight;                           ///< Initialize関数で設定したウィンドウ高さ
-
     bool isINIT;
-
-    
-    GLuint fbuffer;				///帧缓冲指针
 
     char *ModelFileName[MAXMODELCOUNT];		///模型文件夹的名称集合
     int ModelFileCount;				///模型数量
 
-    double Scale;
-    double viewPoint_x;
-    double viewPoint_y;
-    double delaytime;
-
-    bool Resizeflag;
-    bool RandomMotion;
-
-
-    uint16_t curentId;
+    RenderInfo _renderInfo[8];
     };
  
 

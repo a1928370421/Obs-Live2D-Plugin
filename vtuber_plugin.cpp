@@ -1,5 +1,5 @@
 #include <obs-module.h>
-#include "VtuberPluginFrameWork.hpp"
+#include "VtuberPlugin.hpp"
 
 OBS_DECLARE_MODULE()
 
@@ -16,23 +16,23 @@ bool obs_module_load(void)
 	Vtuber_video.type = OBS_SOURCE_TYPE_INPUT;
 	Vtuber_video.output_flags = OBS_SOURCE_VIDEO;
 	Vtuber_video.get_name =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::VtuberGetName;
+		VtuberPlugin::VtuberPlugin::VtuberGetName;
 	Vtuber_video.create =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::VtuberCreate;
+		VtuberPlugin::VtuberPlugin::VtuberCreate;
 	Vtuber_video.destroy =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::VtuberDestroy;
+		VtuberPlugin::VtuberPlugin::VtuberDestroy;
 	Vtuber_video.video_render =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::VtuberRender;
+		VtuberPlugin::VtuberPlugin::VtuberRender;
 	Vtuber_video.get_width =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::VtuberWidth;
+		VtuberPlugin::VtuberPlugin::VtuberWidth;
 	Vtuber_video.get_height =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::VtuberHeight;
+		VtuberPlugin::VtuberPlugin::VtuberHeight;
 	Vtuber_video.get_properties =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::VtuberGetProperties;
+		VtuberPlugin::VtuberPlugin::VtuberGetProperties;
 	Vtuber_video.update =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::Vtuber_update;
+		VtuberPlugin::VtuberPlugin::Vtuber_update;
 	Vtuber_video.get_defaults =
-		VtuberPluginFrameWork::VtuberPluginFrameWork::Vtuber_defaults;
+		VtuberPlugin::VtuberPlugin::Vtuber_defaults;
 
 	obs_register_source(&Vtuber_video);
 

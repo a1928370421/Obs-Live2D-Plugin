@@ -39,6 +39,8 @@ public:
      */
     void LoadAssets(const Csm::csmChar* dir, const  Csm::csmChar* fileName);
 
+    void ReleaseAsset();
+
     /**
      * @brief レンダラを再構築する
      *
@@ -105,6 +107,8 @@ public:
     void SetRandomMotion(bool _randomMotion);
 
     void SetDelayTime(Csm::csmFloat32 _dt);
+
+    Csm::csmBool GetDisplay();
 
 protected:
     /**

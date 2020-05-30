@@ -7,6 +7,8 @@
 
 #pragma once
 
+#define MAXMODELDATA 16
+
 #include <CubismFramework.hpp>
 #include <Math/CubismMatrix44.hpp>
 #include <Math/CubismViewMatrix.hpp>
@@ -21,6 +23,10 @@ class LAppModel;
 */
 class LAppLive2DManager
 {
+	struct ModelData {
+		Csm::csmVector<LAppModel *>_models; ///< モデルインスタンスのコンテナ
+		Csm::csmInt32 _sceneIndex; ///< 表示するシーンのインデックス値
+	};
 
 public:
     /**
@@ -43,29 +49,27 @@ public:
     * @param[in]   no  モデルリストのインデックス値
     * @return      モデルのインスタンスを返す。インデックス値が範囲外の場合はNULLを返す。
     */
-    LAppModel* GetModel(Csm::csmUint32 no) const;
+    LAppModel *GetModel(Csm::csmUint16 id) const;
 
     /**
     * @brief   現在のシーンで保持しているすべてのモデルを解放する
     *
     */
-    void ReleaseAllModel();
+    void ReleaseAllModel(Csm::csmUint16 id);
+
+    void ReleaseModel(Csm::csmUint16 id);
 
     /**
     * @brief   画面を更新するときの処理
     *          モデルの更新処理および描画処理を行う
     */
-    void OnUpdate() const;
+    void OnUpdate(Csm::csmUint16 id) const;
 
     /**
     * @brief   シーンを切り替える<br>
     *           サンプルアプリケーションではモデルセットの切り替えを行う。
     */
-    void ChangeScene(Csm::csmInt32 index);
-
-    void SetRandomMotion(Csm::csmBool _Random_Motion);
-
-    void SetDelayTime(Csm::csmFloat32 _delayTime);
+    void ChangeScene(Csm::csmInt32 index,Csm::csmInt16 id);
 
 private:
     /**
@@ -78,9 +82,5 @@ private:
     */
     virtual ~LAppLive2DManager();
 
-    Csm::csmVector<LAppModel*>  _models; ///< モデルインスタンスのコンテナ
-    Csm::csmInt32               _sceneIndex; ///< 表示するシーンのインデックス値
-
-    Csm::csmBool Random_Motion;
-    Csm::csmFloat32 _delayTime;
+    ModelData _modeldata[MAXMODELDATA];
 };

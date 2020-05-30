@@ -5,9 +5,9 @@
 #pragma once
 #include <obs.h>
 
-namespace VtuberPluginFrameWork {
+namespace VtuberPlugin {
 
-	class VtuberPluginFrameWork
+	class VtuberPlugin
 	{
 	public:
 		static const char *VtuberGetName(void *unused);

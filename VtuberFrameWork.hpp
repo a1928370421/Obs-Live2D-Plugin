@@ -6,28 +6,29 @@
 
 class VtuberFrameWork {
 public:
-	static void InitVtuber();
+	static void InitVtuber(int id);
 
-	static void ReanderVtuber(char *data);
+	static void ReanderVtuber(int targetid, char *data, int bufferWidth,
+				  int bufferheight);
 
-	static void UinitVtuber();
+	static void UinitVtuber(int id);
 
-	static void UpData(double _x, double _y, int width, int height,
+	static void UpData(int id,double _x, double _y, int width, int height,
 			   double scale,double delayTime, bool randomMotion, const char *ModelName);
 
 	static const char **GetModelFileName();
 
 	static int ModelNum();
 
-	static int GetWidth();
+	static int GetWidth(int id);
 
-	static int GetHeight();
+	static int GetHeight(int id);
 
-	static double GetScale();
+	static double GetScale(int id);
 
-	static double GetX();
+	static double GetX(int id);
 
-	static double GetY();
+	static double GetY(int id);
 };
 
 

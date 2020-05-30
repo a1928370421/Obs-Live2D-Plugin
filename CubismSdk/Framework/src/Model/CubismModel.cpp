@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -484,7 +484,7 @@ const csmInt32* CubismModel::GetDrawableMaskCounts() const
 
 void CubismModel::LoadParameters()
 {
-    csmInt32       parameterCount = Core::csmGetParameterCount(_model);
+    csmInt32 parameterCount = Core::csmGetParameterCount(_model);
     const csmInt32 savedParameterCount = static_cast<csmInt32>(_savedParameters.GetSize());
 
     if (parameterCount > savedParameterCount)

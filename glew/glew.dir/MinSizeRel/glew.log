@@ -1,4 +1,0 @@
-﻿  Building Custom Rule E:/obspl/obs-studio-master/plugins/live2d-plugin/thirdParty/glew/build/cmake/CMakeLists.txt
-  glew.c
-    正在创建库 E:/obspl/build/lib/MinSizeRel/glew32.lib 和对象 E:/obspl/build/lib/MinSizeRel/glew32.exp
-  glew.vcxproj -> E:\obspl\build\bin\MinSizeRel\glew32.dll

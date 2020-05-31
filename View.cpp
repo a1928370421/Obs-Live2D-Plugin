@@ -5,11 +5,11 @@
 #include "VtuberDelegate.hpp"
 #include "Live2DManager.hpp"
 #include "LAppTextureManager.hpp"
-#include "LAppDefine.hpp"
+#include "Define.hpp"
 #include "LAppModel.hpp"
 
 using namespace std;
-using namespace LAppDefine;
+using namespace Define;
 
 View::View() : _programId(0), _renderTarget(SelectTarget_None)
 {

@@ -60,13 +60,14 @@ void VtuberFrameWork::UinitVtuber(int id)
 }
 
 void VtuberFrameWork::UpData(int id,double _x, double _y, int width, int height,
-			     double sc,double _delayTime, bool _randomMotion,const char *modelPath)
+			     double sc,double _delayTime, bool _randomMotion,bool _break,bool _eyeBlink,const char *modelPath)
 {
 	mut.lock();
 
 	VtuberDelegate::GetInstance()->UpdataViewWindow(_x,_y,width, height,sc, id);
+	VtuberDelegate::GetInstance()->updataModelSetting(
+		_randomMotion, _delayTime, _break,_eyeBlink,id);
 	VtuberDelegate::GetInstance()->ChangeModel(modelPath,id);
-	VtuberDelegate::GetInstance()->updataModelSetting(_randomMotion,_delayTime,id);
 
 	mut.unlock();
 }

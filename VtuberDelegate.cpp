@@ -8,12 +8,12 @@
 #include <GLFW/glfw3.h>
 #include "View.hpp"
 #include "LAppPal.hpp"
-#include "LAppDefine.hpp"
+#include "Define.hpp"
 #include "Live2DManager.hpp"
 #include "LAppTextureManager.hpp" 
 using namespace Csm;
 using namespace std;
-using namespace LAppDefine;
+using namespace Define;
 
 namespace {
 VtuberDelegate *s_instance = NULL;
@@ -138,15 +138,18 @@ void VtuberDelegate::UpdataViewWindow(double _x, double _y, int _width,
 {
 	_renderInfo[_id].viewPoint_x = _x;
 	_renderInfo[_id].viewPoint_y = _y;
-	_renderInfo[_id].windowWidth = _width;
+	_renderInfo[_id].windowWidth = _width/32*32;
 	_renderInfo[_id].windowHeight = _height;
 	_renderInfo[_id].Scale = _scale;
 }
 
-void VtuberDelegate::updataModelSetting(bool _randomMotion, double _delayTime,int id)
+void VtuberDelegate::updataModelSetting(bool _randomMotion, double _delayTime,
+					bool _breath, bool _eyeBlink,int id)
 {
 	_renderInfo[id].randomMotion = _randomMotion;
 	_renderInfo[id].delayTime = _delayTime;
+	_renderInfo[id].isBreath = _breath;
+	_renderInfo[id].isEyeBlink = _eyeBlink;
 }
 
 bool VtuberDelegate::GetRandomMotion(int _id)
@@ -157,6 +160,16 @@ bool VtuberDelegate::GetRandomMotion(int _id)
 double VtuberDelegate::GetDelayTime(int _id)
 {
 	return _renderInfo[_id].delayTime;
+}
+
+bool VtuberDelegate::GetBreath(int id)
+{
+	return _renderInfo[id].isBreath;
+}
+
+bool VtuberDelegate::GetEyeBlink(int id)
+{
+	return _renderInfo[id].isEyeBlink;
 }
 
 void VtuberDelegate::ChangeModel(const char *ModelName, int id)
@@ -182,7 +195,7 @@ VtuberDelegate::~VtuberDelegate() {}
 void VtuberDelegate::InitializeCubism()
 {
     _cubismOption.LogFunction = LAppPal::PrintMessage;
-    _cubismOption.LoggingLevel = LAppDefine::CubismLoggingLevel;
+    _cubismOption.LoggingLevel = Define::CubismLoggingLevel;
     Csm::CubismFramework::StartUp(&_cubismAllocator, &_cubismOption);
 
     //Initialize cubism

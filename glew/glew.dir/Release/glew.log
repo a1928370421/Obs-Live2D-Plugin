@@ -1,3 +1,0 @@
-﻿    正在创建库 E:/obspl/build/lib/Release/glew32.lib 和对象 E:/obspl/build/lib/Release/glew32.exp
-glew.obj : error LNK2019: 无法解析的外部符号 memset，函数 glewContextInit 中引用了该符号
-E:\obspl\build\bin\Release\glew32.dll : fatal error LNK1120: 1 个无法解析的外部命令

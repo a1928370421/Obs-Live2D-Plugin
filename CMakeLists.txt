@@ -1,5 +1,6 @@
 # Set app name.
 set(APP_NAME live2d_plugin)
+
 # Set directory paths.
 set(SDK_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(CORE_PATH ${SDK_ROOT_PATH}/CubismSdk/Core)
@@ -11,16 +12,6 @@ set(GLFW_PATH ${THIRD_PARTY_PATH}/glfw)
 set(RES_PATH ${SDK_ROOT_PATH}/Resources)
 
 project(${APP_NAME})
-
-# Suppress generation of ZERO_CHECK project.
-set(CMAKE_SUPPRESS_REGENERATION ON)
-
-# Surpress GLEW and GLFW process.
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-set(BUILD_UTILS OFF CACHE BOOL "" FORCE)
 
 # Detect architecture.
 if(CMAKE_EXE_LINKER_FLAGS STREQUAL "/machine:x64 /OPT:REF")
@@ -65,14 +56,20 @@ set_target_properties(Live2DCubismCore
   PROPERTIES
     IMPORTED_LOCATION_DEBUG
       ${CORE_LIB_SUFFIX}/Live2DCubismCore_${CRT}d.lib
+    IMPORTED_LOCATION_RELWITHDEBINFO
+      ${CORE_LIB_SUFFIX}/Live2DCubismCore_${CRT}d.lib
     IMPORTED_LOCATION_RELEASE
+      ${CORE_LIB_SUFFIX}/Live2DCubismCore_${CRT}.lib
+    IMPORTED_LOCATION_MINSIZEREL
       ${CORE_LIB_SUFFIX}/Live2DCubismCore_${CRT}.lib
     INTERFACE_INCLUDE_DIRECTORIES ${CORE_PATH}/include
 )
 
 # Add GLEW ,GLFW.
-add_subdirectory(${GLEW_PATH}/build/cmake ${CMAKE_CURRENT_SOURCE_DIR}/glew)
-add_subdirectory(${GLFW_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/glfw)
+add_subdirectory(${GLEW_PATH}/build/cmake ${CMAKE_CURRENT_SOURCE_DIR}/gl/glew)
+add_subdirectory(${GLFW_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/gl/glfw)
+set_target_properties(glew PROPERTIES FOLDER "plugins/${APP_NAME}")
+set_target_properties(glew_s PROPERTIES FOLDER "plugins/${APP_NAME}")
 
 # Specify Cubism Framework rendering.
 set(FRAMEWORK_SOURCE OpenGL)
@@ -92,7 +89,7 @@ find_package(OpenGL REQUIRED)
 set(${APP_NAME}_SOURCES
 	vtuber_plugin.cpp
 	LAppAllocator.cpp
-	LAppDefine.cpp	
+	Define.cpp	
 	VtuberDelegate.cpp	
 	Live2DManager.cpp
 	LAppModel.cpp	
@@ -106,7 +103,7 @@ set(${APP_NAME}_SOURCES
 
 set(${APP_NAME}_HEADERS
 	LAppAllocator.hpp
-	LAppDefine.hpp
+	Define.hpp
 	VtuberDelegate.hpp
 	Live2DManager.hpp
 	LAppModel.hpp
@@ -129,9 +126,6 @@ target_link_libraries(${APP_NAME}
 	Framework
 	glfw
 	${OPENGL_LIBRARIES}
-	# Solve the MSVCRT confliction.
-	debug -NODEFAULTLIB:libcmtd.lib
-	optimized -NODEFAULTLIB:libcmt.lib
 )
 
 # Specify include directories.

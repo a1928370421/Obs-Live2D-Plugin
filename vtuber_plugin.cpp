@@ -2,7 +2,7 @@
 #include "VtuberPlugin.hpp"
 
 OBS_DECLARE_MODULE()
-
+OBS_MODULE_USE_DEFAULT_LOCALE("live2d_plugin", "en-US")
 MODULE_EXPORT const char *obs_module_description(void)
 {
 	return "Vtuber";

@@ -20,15 +20,22 @@ class LAppTextureManager;
 class VtuberDelegate {
 
 	struct RenderInfo {
-
+		//view
 		double viewPoint_x;
 		double viewPoint_y;
 		int windowWidth;
 		int windowHeight; 				
 		double Scale;
 
+		//model setting
 		bool randomMotion;
+		bool isBreath;
+		bool isEyeBlink;
 		double delayTime;
+
+		double angleX;
+		double angleY;
+		double angleZ;
 	};
 
 public:
@@ -83,12 +90,16 @@ public:
     void ChangeModel(const char *ModelName, int id);
 
 
-
-    void updataModelSetting(bool _randomMotion,double _delayTime,int id);
+    void updataModelSetting(bool _randomMotion, double _delayTime, bool _breath,
+			    bool _eyeBlink,int id);
 
     bool GetRandomMotion(int id);
 
     double GetDelayTime(int id);
+
+    bool GetBreath(int id);
+
+    bool GetEyeBlink(int id);
 
 private:
     /**

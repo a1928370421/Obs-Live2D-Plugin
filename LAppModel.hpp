@@ -37,7 +37,7 @@ public:
      * @brief model3.jsonが置かれたディレクトリとファイルパスからモデルを生成する
      *
      */
-    void LoadAssets(const Csm::csmChar* dir, const  Csm::csmChar* fileName);
+    Csm::csmBool LoadAssets(const Csm::csmChar* dir, const  Csm::csmChar* fileName);
 
     /**
      * @brief レンダラを再構築する
@@ -77,7 +77,7 @@ public:
      * @param[in]   onFinishedMotionHandler     モーション再生終了時に呼び出されるコールバック関数。NULLの場合、呼び出されない。
      * @return                                  開始したモーションの識別番号を返す。個別のモーションが終了したか否かを判定するIsFinished()の引数で使用する。開始できない時は「-1」
      */
-    Csm::CubismMotionQueueEntryHandle StartRandomMotion(const Csm::csmChar* group, Csm::csmInt32 priority, Csm::ACubismMotion::FinishedMotionCallback onFinishedMotionHandler = NULL);
+    Csm::CubismMotionQueueEntryHandle StartRandomMotion(Csm::csmInt32 priority, Csm::ACubismMotion::FinishedMotionCallback onFinishedMotionHandler = NULL);
 
     /**
      * @brief   引数で指定した表情モーションをセットする
@@ -102,7 +102,8 @@ public:
      */
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2& GetRenderBuffer();
 
-    void UpdataSetting(Csm::csmBool _randomMotion, Csm::csmFloat32 _delayTime);
+    void UpdataSetting(Csm::csmBool _randomMotion, Csm::csmFloat32 _delayTime,
+		       Csm::csmBool _isBreath, Csm::csmBool _isEyeBlink);
 
 protected:
     /**
@@ -133,7 +134,7 @@ private:
      *
      * @param[in]   group  モーションデータのグループ名
      */
-    void PreloadMotionGroup(const Csm::csmChar* group);
+    Csm::csmBool PreloadMotionGroup(const Csm::csmChar* group);
 
     /**
      * @brief   モーションデータをグループ名から一括で解放する。<br>
@@ -175,6 +176,8 @@ private:
 
     Csm::csmBool randomMotion;
     Csm::csmFloat32 delayTime;
+    Csm::csmBool isBreath;
+    Csm::csmBool isEyeBlink;
 };
 
 

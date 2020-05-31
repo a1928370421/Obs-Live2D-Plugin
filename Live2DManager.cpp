@@ -11,13 +11,13 @@
 #include <GLFW/glfw3.h>
 #include <Rendering/CubismRenderer.hpp>
 #include "LAppPal.hpp"
-#include "LAppDefine.hpp"
+#include "Define.hpp"
 #include "VtuberDelegate.hpp"
 #include "LAppModel.hpp"
 #include "View.hpp"
 
 using namespace Csm;
-using namespace LAppDefine;
+using namespace Define;
 using namespace std;
 
 namespace {
@@ -98,7 +98,9 @@ void Live2DManager::OnUpdate(Csm::csmUint16 id) const
 	
 		model->UpdataSetting(
 			VtuberDelegate::GetInstance()->GetRandomMotion(id),
-			VtuberDelegate::GetInstance()->GetDelayTime(id));
+			VtuberDelegate::GetInstance()->GetDelayTime(id),
+			VtuberDelegate::GetInstance()->GetBreath(id),
+			VtuberDelegate::GetInstance()->GetEyeBlink(id));
 		model->Update();
 		model->Draw(projection);
 
@@ -123,9 +125,8 @@ void Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
 
     ReleaseAllModel(_id);
     _modeldata[_id]._models.PushBack(new LAppModel());
-    _modeldata[_id]._models[0]->LoadAssets(modelPath.c_str(),modelJsonName.c_str());
-    _modeldata[_id]._models[0]->ReloadRenderer();
-    _modeldata[_id]._modelPath = _modelPath;
+    if(_modeldata[_id]._models[0]->LoadAssets(modelPath.c_str(),modelJsonName.c_str()))
+	_modeldata[_id]._modelPath = _modelPath;
     /*
      * モデル半透明表示を行うサンプルを提示する。
      * ここでUSE_RENDER_TARGET、USE_MODEL_RENDER_TARGETが定義されている場合
@@ -150,8 +151,7 @@ void Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
         _models[1]->GetModelMatrix()->TranslateX(0.2f);
 #endif
 
-        VtuberDelegate::GetInstance()->GetView()->SwitchRenderingTarget(
-		useRenderTarget);
+        VtuberDelegate::GetInstance()->GetView()->SwitchRenderingTarget(useRenderTarget);
 
         // 別レンダリング先を選択した際の背景クリア色
         float clearColor[3] = { 1.0f, 1.0f, 1.0f };

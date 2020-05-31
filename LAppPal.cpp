@@ -14,7 +14,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <Model/CubismMoc.hpp>
-#include "LAppDefine.hpp"
+#include "Define.hpp"
 #include <Windows.h>
 #include <io.h>
 #include <codecvt>
@@ -22,7 +22,7 @@
 using std::endl;
 using namespace Csm;
 using namespace std;
-using namespace LAppDefine;
+using namespace Define;
 
 double LAppPal::s_currentFrame = 0.0;
 double LAppPal::s_lastFrame = 0.0;
@@ -33,17 +33,40 @@ csmByte* LAppPal::LoadFileAsBytes(const string filePath, csmSizeInt* outSize)
     //filePath;//
     const char* path = filePath.c_str();
 
+#if _WIN64
+
+    //fix open wchar file path
+    int wchars_num = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+    wchar_t *wstr = new wchar_t[wchars_num];
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, wstr, wchars_num);
+
     int size = 0;
-    struct stat statBuf;
-    if (stat(path, &statBuf) == 0)
+    struct _stat64 statBuf;
+    if (_wstat64(wstr, &statBuf) == 0)
     {
         size = statBuf.st_size;
+    } else {
+        size = 0;
     }
+    *outSize = size;
 
+#else
+    int wchars_num = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+    wchar_t *wstr = new wchar_t[wchars_num];
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, wstr, wchars_num);
+
+    int size = 0;
+    struct _stat32 statBuf;
+    if (_wstat32(wstr, &statBuf) == 0) {
+	    size = statBuf.st_size;
+    } else {
+	    size = 0;
+    }
+#endif // X64
     std::fstream file;
     char* buf = new char[size];
 
-    file.open(path, std::ios::in | std::ios::binary);
+    file.open(wstr, std::ios::in | std::ios::binary);
     if (!file.is_open())
     {
         if (DebugLogEnable)
@@ -55,7 +78,6 @@ csmByte* LAppPal::LoadFileAsBytes(const string filePath, csmSizeInt* outSize)
     file.read(buf, size);
     file.close();
 
-    *outSize = size;
     return reinterpret_cast<csmByte*>(buf);
 }
 
@@ -122,9 +144,8 @@ int LAppPal::GetAllDirName(const char *csDir, char **Files)
 	wstring Path = wstring(wstr) + L"*";
 
 	HANDLE hFile;
-	//文件信息，声明一个存储文件信息的结构体
 	WIN32_FIND_DATA findFileData;
-	string p; //字符串，存放路径
+	string p;
 	hFile = FindFirstFile(Path.c_str(), &findFileData);
 	if (hFile){
 		
@@ -132,7 +153,6 @@ int LAppPal::GetAllDirName(const char *csDir, char **Files)
 			if ((findFileData.dwFileAttributes == _A_SUBDIR)) {
 				if (strcmp((const char *)findFileData.cFileName, ".") != 0 &&
 				    strcmp((const char *)findFileData.cFileName,"..") !=0) {
-
 					wstring temp(findFileData.cFileName);
 					string converted_str =converter.to_bytes(temp);
 					Files[i] = (char*)malloc(converted_str.size()+1);

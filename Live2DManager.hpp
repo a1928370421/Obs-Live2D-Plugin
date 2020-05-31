@@ -7,7 +7,7 @@
 
 #pragma once
 
-#define MAXMODELDATA 16
+#define MAXMODELDATA 1024
 
 #include <CubismFramework.hpp>
 #include <Math/CubismMatrix44.hpp>
@@ -21,11 +21,11 @@ class LAppModel;
 *         モデル生成と破棄、タップイベントの処理、モデル切り替えを行う。
 *
 */
-class LAppLive2DManager
+class Live2DManager
 {
 	struct ModelData {
 		Csm::csmVector<LAppModel *>_models; ///< モデルインスタンスのコンテナ
-		Csm::csmInt32 _sceneIndex; ///< 表示するシーンのインデックス値
+		Csm::csmString _modelPath;
 	};
 
 public:
@@ -35,7 +35,7 @@ public:
     *
     * @return  クラスのインスタンス
     */
-    static LAppLive2DManager* GetInstance();
+    static Live2DManager* GetInstance();
 
     /**
     * @brief   クラスのインスタンス（シングルトン）を解放する。
@@ -69,18 +69,18 @@ public:
     * @brief   シーンを切り替える<br>
     *           サンプルアプリケーションではモデルセットの切り替えを行う。
     */
-    void ChangeScene(Csm::csmInt32 index,Csm::csmInt16 id);
+    void ChangeScene(const Csm::csmChar * _modelPath,Csm::csmInt16 _id);
 
 private:
     /**
     * @brief  コンストラクタ
     */
-    LAppLive2DManager();
+    Live2DManager();
 
     /**
     * @brief  デストラクタ
     */
-    virtual ~LAppLive2DManager();
+    virtual ~Live2DManager();
 
     ModelData _modeldata[MAXMODELDATA];
 };

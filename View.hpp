@@ -8,7 +8,7 @@
 #include "CubismFramework.hpp"
 #include <Rendering/OpenGL/CubismOffscreenSurface_OpenGLES2.hpp>
 
-#define MAXVIEWDATA 16
+#define MAXVIEWDATA 1024
 
 class LAppModel;
 
@@ -58,6 +58,8 @@ public:
     void SetRenderTargetClearColor(float r, float g, float b);
 
      Csm::CubismViewMatrix *GetViewMatrix(int id);
+
+     Csm::CubismMatrix44 *GetDeviceToScreenMatrix(int id);
 
 private:
     ViewData _viewData[MAXVIEWDATA];

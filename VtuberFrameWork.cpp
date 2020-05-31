@@ -9,8 +9,6 @@
 namespace {
     static bool isLoad;
 
-    static bool isEnd;
-
     static bool isInit;
 
     static int initCount = 0;
@@ -24,7 +22,6 @@ void VtuberFrameWork::InitVtuber(int id)
     initCount++;
     if (initCount == 0) {
 	isInit = false;
-	isEnd = false;
     }   
     isLoad = VtuberDelegate::GetInstance()->LoadResource(id);
     mut.unlock();
@@ -37,9 +34,8 @@ void VtuberFrameWork::ReanderVtuber(int targatid, char *data, int bufferWidth,
 
     if (isLoad) {
     
-    if (initCount == 0 && isEnd) {
+    if (initCount == 0 && isInit) {
         VtuberDelegate::GetInstance()->Release();
-        isEnd = false;
 	goto end;
     }
     if (initCount>0&&!isInit) {
@@ -59,26 +55,18 @@ void VtuberFrameWork::UinitVtuber(int id)
 {
     mut.lock();    
     initCount--;
-    if (isLoad && initCount == 0) {
-	isEnd == true;
-	isInit = false;	
-    }
     VtuberDelegate::GetInstance()->ReleaseResource(id);
     mut.unlock();
 }
 
 void VtuberFrameWork::UpData(int id,double _x, double _y, int width, int height,
-			     double sc,double _delayTime, bool randomMotion,const char *modelName)
+			     double sc,double _delayTime, bool _randomMotion,const char *modelPath)
 {
 	mut.lock();
 
-	VtuberDelegate::GetInstance()->SetX(_x,id);
-	VtuberDelegate::GetInstance()->SetY(_y, id);
-	VtuberDelegate::GetInstance()->Resize(width, height,id);
-	VtuberDelegate::GetInstance()->setScale(sc, id);
-	VtuberDelegate::GetInstance()->ChangeModel(modelName,id);
-	VtuberDelegate::GetInstance()->SetDelayTime(_delayTime,id);
-	VtuberDelegate::GetInstance()->SetRandomMotion(randomMotion,id);
+	VtuberDelegate::GetInstance()->UpdataViewWindow(_x,_y,width, height,sc, id);
+	VtuberDelegate::GetInstance()->ChangeModel(modelPath,id);
+	VtuberDelegate::GetInstance()->updataModelSetting(_randomMotion,_delayTime,id);
 
 	mut.unlock();
 }
@@ -91,16 +79,6 @@ int VtuberFrameWork::GetWidth(int id)
 int VtuberFrameWork::GetHeight(int id)
 {
 	return VtuberDelegate::GetInstance()->getBufferHeight(id);
-}
-
-const char** VtuberFrameWork::GetModelFileName()
-{
-	return VtuberDelegate::GetInstance()->GetModelsName();
-}
-
-int VtuberFrameWork::ModelNum()
-{
-	return VtuberDelegate::GetInstance()->ModelCount();
 }
 
 double VtuberFrameWork::GetScale(int id)

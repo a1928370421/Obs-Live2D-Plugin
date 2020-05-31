@@ -29,20 +29,12 @@ using namespace LAppDefine;
 
 namespace {
     csmByte* CreateBuffer(const csmChar* path, csmSizeInt* size)
-    {
-        if (DebugLogEnable)
-        {
-            LAppPal::PrintLog("[APP]create buffer: %s ", path);
-        }
+    {      
         return LAppPal::LoadFileAsBytes(path, size);
     }
 
     void DeleteBuffer(csmByte* buffer, const csmChar* path = "")
     {
-        if (DebugLogEnable)
-        {
-            LAppPal::PrintLog("[APP]delete buffer: %s", path);
-        }
         LAppPal::ReleaseBytes(buffer);
     }
 }
@@ -51,8 +43,8 @@ LAppModel::LAppModel()
     : CubismUserModel()
     , _modelSetting(NULL)
     , _userTimeSeconds(0.0f),
-     Random_Motion(true),
-	  _delayTime(5.0f)
+     randomMotion(true),
+	  delayTime(5.0f)
 {
     if (DebugLogEnable)
     {
@@ -86,11 +78,6 @@ void LAppModel::LoadAssets(const csmChar* dir, const csmChar* fileName)
 {
     _modelHomeDir = dir;
 
-    if (_debugMode)
-    {
-        LAppPal::PrintLog("[APP]load model setting: %s", fileName);
-    }
-
     csmSizeInt size;
     const csmString path = csmString(dir) + fileName;
 
@@ -103,27 +90,6 @@ void LAppModel::LoadAssets(const csmChar* dir, const csmChar* fileName)
     CreateRenderer();
 
     SetupTextures();
-}
-
-void LAppModel::ReleaseAsset() {
-
-	DeleteRenderer();
-
-	_eyeBlinkIds.Clear(); 
-	_lipSyncIds.Clear(); 
-	_hitArea.Clear();
-	_userArea.Clear();
-
-	_renderBuffer.DestroyOffscreenFrame();
-
-	ReleaseMotions();
-	ReleaseExpressions();
-
-	for (csmInt32 i = 0; i < _modelSetting->GetMotionGroupCount(); i++) {
-		const csmChar *group = _modelSetting->GetMotionGroupName(i);
-		ReleaseMotionGroup(group);
-	}
-	delete (_modelSetting);
 }
 
 
@@ -143,11 +109,6 @@ void LAppModel::SetupModel(ICubismModelSetting* setting)
     {
         csmString path = _modelSetting->GetModelFileName();
         path = _modelHomeDir + path;
-
-        if (_debugMode)
-        {
-            LAppPal::PrintLog("[APP]create model: %s", setting->GetModelFileName());
-        }
 
         buffer = CreateBuffer(path.GetRawString(), &size);
         LoadModel(buffer, size);
@@ -359,7 +320,7 @@ void LAppModel::ReleaseExpressions()
 
 void LAppModel::Update()
 {
-    const csmFloat32 deltaTimeSeconds =_delayTime * LAppPal::GetDeltaTime();
+    const csmFloat32 deltaTimeSeconds =delayTime * LAppPal::GetDeltaTime();
     _userTimeSeconds += deltaTimeSeconds;
 
     // モーションによるパラメータ更新の有無
@@ -369,7 +330,7 @@ void LAppModel::Update()
     _model->LoadParameters(); // 前回セーブされた状態をロード
     if (_motionManager->IsFinished()) {
 	    // モーションの再生がない場合、待機モーションの中からランダムで再生する
-	    if(Random_Motion)
+	    if(randomMotion)
 		    StartRandomMotion(MotionGroupIdle, PriorityIdle);	 
     } else {
 	    motionUpdated = _motionManager->UpdateMotion(
@@ -631,17 +592,13 @@ Csm::Rendering::CubismOffscreenFrame_OpenGLES2& LAppModel::GetRenderBuffer()
     return _renderBuffer;
 }
 
-void LAppModel::SetRandomMotion(bool _randomMotion) {
-	if (_randomMotion != Random_Motion) {
-		Random_Motion = _randomMotion;
-	}	
+void LAppModel::UpdataSetting(Csm::csmBool _randomMotion,
+			      Csm::csmFloat32 _delayTime)
+{
+	randomMotion = _randomMotion;
+	delayTime = _delayTime;
 }
 
-void LAppModel::SetDelayTime(csmFloat32 _dt) {
-	if (_delayTime != _dt) {
-		_delayTime = _dt;
-	}
-}
 
 
 

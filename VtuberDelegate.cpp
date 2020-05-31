@@ -9,7 +9,7 @@
 #include "View.hpp"
 #include "LAppPal.hpp"
 #include "LAppDefine.hpp"
-#include "LAppLive2DManager.hpp"
+#include "Live2DManager.hpp"
 #include "LAppTextureManager.hpp" 
 using namespace Csm;
 using namespace std;
@@ -43,22 +43,20 @@ void VtuberDelegate::ReleaseInstance()
 
 bool VtuberDelegate::LoadResource(int id)
 {
-	if (!LAppPal::IsPathExist(ResourcesPath)) {
-		return false;
-	}
-	ModelFileCount = LAppPal::GetAllDirName(ResourcesPath, ModelFileName);
+	_view->Initialize(id);
+
 	return true;
 }
 
 void VtuberDelegate::ReleaseResource(int id) {
-	  LAppLive2DManager::GetInstance()->ReleaseModel(id);
+
+	  Live2DManager::GetInstance()->ReleaseAllModel(id);
+
 }
 
 
 bool VtuberDelegate::Initialize()
-{   VtuberCount++;
-    if (!isINIT) {
-	isINIT = true;
+{   
     if (DebugLogEnable)
     {
         LAppPal::PrintLog("START");
@@ -97,23 +95,15 @@ bool VtuberDelegate::Initialize()
         glfwTerminate();
         return GL_FALSE;
     }
-    _view->Initialize(0);
     // Cubism SDK の初期化
     InitializeCubism();
-    }
 
     return GL_TRUE;
 }
 
 void VtuberDelegate::Release()
 {   
-    if(VtuberCount>1)
-    {
-        VtuberCount--;
-    }
-    else 
-    {
-        isINIT = false;
+
 
         glfwDestroyWindow(_window);
 
@@ -123,108 +113,64 @@ void VtuberDelegate::Release()
 
         delete _view;
 
-        LAppLive2DManager::ReleaseInstance();
+        Live2DManager::ReleaseInstance();
 
         CubismFramework::Dispose();
 
         CubismFramework::CleanUp();   
 
         ReleaseInstance();
-    }  
 }
 
 void VtuberDelegate::Reader(int id,char *buffer,int bufferWidth, int bufferheight)
 {
-	if (_renderInfo[id].Resizeflag) {
-		_renderInfo[id].Resizeflag = false;
-		_view->Initialize(id);
-		glViewport(0, 0,_renderInfo[id]._windowWidth,_renderInfo[id]._windowHeight);
-	}
+
 	LAppPal::UpdateTime();
 	
 	//描画更新
 	_view->Render(id);
 	
-	glReadPixels(0, 0, _renderInfo[id]._windowWidth,
-		     _renderInfo[id]._windowHeight, GL_RGBA, GL_UNSIGNED_BYTE,
-		     buffer);
+	glReadPixels(0, 0, bufferWidth, bufferheight, GL_RGBA, GL_UNSIGNED_BYTE,buffer);
 }
 
-int VtuberDelegate::ModelCount()
+void VtuberDelegate::UpdataViewWindow(double _x, double _y, int _width,
+				      int _height, double _scale, int _id)
 {
-	return ModelFileCount;
+	_renderInfo[_id].viewPoint_x = _x;
+	_renderInfo[_id].viewPoint_y = _y;
+	_renderInfo[_id].windowWidth = _width;
+	_renderInfo[_id].windowHeight = _height;
+	_renderInfo[_id].Scale = _scale;
 }
 
-const char **VtuberDelegate::GetModelsName()
+void VtuberDelegate::updataModelSetting(bool _randomMotion, double _delayTime,int id)
 {
-	return (const char**)ModelFileName;
+	_renderInfo[id].randomMotion = _randomMotion;
+	_renderInfo[id].delayTime = _delayTime;
 }
 
-void VtuberDelegate::Resize(int width, int height, int id)
+bool VtuberDelegate::GetRandomMotion(int _id)
 {
-	if (width != _renderInfo[id]._windowWidth ||
-	    height != _renderInfo[id]._windowHeight) {
-		_renderInfo[id].Resizeflag = true;	
-		_renderInfo[id]._windowWidth = width/32*32;
-		_renderInfo[id]._windowHeight = height;
-
-		_view->Initialize(id);
-	} else {
-		_renderInfo[id].Resizeflag = false;
-	}
+	return _renderInfo[_id].randomMotion;
 }
 
-void VtuberDelegate::SetDelayTime(double _delaytime, int id)
+double VtuberDelegate::GetDelayTime(int _id)
 {
-	_renderInfo[id].delaytime = _delaytime;
-}
-
-double VtuberDelegate::GetDelayTime(int id)
-{
-	return _renderInfo[id].delaytime;
-}
-
-uint16_t VtuberDelegate::GetSceneInx(int id)
-{
-	return _renderInfo[id].SceneIdx;
-}
-
-
-void VtuberDelegate::SetRandomMotion(bool _Random_Motion, int id)
-{
-	
-	if (isINIT && _renderInfo[id].RandomMotion != _Random_Motion)
-		_renderInfo[id].RandomMotion = _Random_Motion;
-}
-
-bool VtuberDelegate::GetRandomMotion(int id)
-{
-	return _renderInfo[id].RandomMotion;
+	return _renderInfo[_id].delayTime;
 }
 
 void VtuberDelegate::ChangeModel(const char *ModelName, int id)
 {
 	if (ModelName == NULL) {
 		return;
-	}
-		
-	if (ModelFileCount > 0)
-		for (int i = 0; i < ModelFileCount; i++) {
-			if (strcmp(ModelName, ModelFileName[i]) == 0) {
-				if (_renderInfo[id].SceneIdx != i) {
-					LAppLive2DManager::GetInstance()
-						->ChangeScene(i, id);
-					_renderInfo[id].SceneIdx = i;
-				}					
-				break;
-			}
-		}	
+	}		
+	Live2DManager::GetInstance()->ChangeScene(ModelName, id);	
+
 }
 
 VtuberDelegate::VtuberDelegate()
 	: _cubismOption(),
 	  _window(NULL),
-	  isINIT(false),
 	  ModelFileCount(0)
 {
     _view = new View();
@@ -243,7 +189,7 @@ void VtuberDelegate::InitializeCubism()
     CubismFramework::Initialize();
 
     //load model
-    LAppLive2DManager::GetInstance();
+    Live2DManager::GetInstance();
 
     //default proj
     CubismMatrix44 projection;
@@ -303,12 +249,12 @@ GLuint VtuberDelegate::CreateShader()
 
 int VtuberDelegate::getBufferWidth(int id)
 {
-	return _renderInfo[id]._windowWidth;
+	return _renderInfo[id].windowWidth;
 }
 
 int VtuberDelegate::getBufferHeight(int id)
 {
-	return _renderInfo[id]._windowHeight;
+	return _renderInfo[id].windowHeight;
 }
 
 double VtuberDelegate::getScale(int id)
@@ -316,29 +262,14 @@ double VtuberDelegate::getScale(int id)
 	return _renderInfo[id].Scale;
 }
 
-void VtuberDelegate::setScale(double _sc, int id)
-{
-	_renderInfo[id].Scale = _sc;
-}
-
 double VtuberDelegate::GetX(int id)
 {
 	return _renderInfo[id].viewPoint_x;
 }
 
-void VtuberDelegate::SetX(double _x, int id)
-{
-	_renderInfo[id].viewPoint_x = _x;
-}
-
 double VtuberDelegate::GetY(int id)
 {
 	return _renderInfo[id].viewPoint_y;
-}
-
-void VtuberDelegate::SetY(double _y, int id)
-{
-	_renderInfo[id].viewPoint_y = _y;
 }
 
 bool VtuberDelegate::CheckShader(GLuint shaderId)

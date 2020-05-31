@@ -3,7 +3,7 @@
 #include <string>
 #include "LAppPal.hpp"
 #include "VtuberDelegate.hpp"
-#include "LAppLive2DManager.hpp"
+#include "Live2DManager.hpp"
 #include "LAppTextureManager.hpp"
 #include "LAppDefine.hpp"
 #include "LAppModel.hpp"
@@ -53,8 +53,7 @@ void View::Initialize(int id)
     _viewData[id]._deviceToScreen->LoadIdentity(); // サイズが変わった際などリセット必須
     _viewData[id]._deviceToScreen->ScaleRelative(screenW / width,
 						 -screenW / width);
-    _viewData[id]._deviceToScreen->TranslateRelative(-width * 0.5f,
-						     -height * 0.5f);
+    _viewData[id]._deviceToScreen->TranslateRelative(-width ,-height);
 
     // 表示範囲の設定
     _viewData[id]._viewMatrix->SetMaxScale(ViewMaxScale); // 限界拡大率
@@ -76,7 +75,8 @@ void View::Release(int id) {
 
 void View::Render(int id)
 {
-    LAppLive2DManager* Live2DManager = LAppLive2DManager::GetInstance();
+    Live2DManager* Live2DManager = Live2DManager::GetInstance();
+
     int width, height;
     width = VtuberDelegate::GetInstance()->getBufferWidth(id);
     height = VtuberDelegate::GetInstance()->getBufferHeight(id);
@@ -85,8 +85,11 @@ void View::Render(int id)
     y = VtuberDelegate::GetInstance()->GetY(id);
     scale = VtuberDelegate::GetInstance()->getScale(id);
 
-    _viewData[id]._viewMatrix->Scale(scale, scale * static_cast<float>(width) /static_cast<float>(height));
-    _viewData[id]._viewMatrix->Translate(x, y);
+    _viewData[id]._viewMatrix->Scale(0.6*scale, scale);
+
+    double _x = -static_cast<float>(RenderTargetWidth - width) /static_cast<float>(RenderTargetWidth);
+    double _y = -static_cast<float>(RenderTargetHeight-height) /static_cast<float>(RenderTargetHeight);
+    _viewData[id]._viewMatrix->Translate(x + _x, y+_y);
 
     Live2DManager->OnUpdate(id);
    
@@ -170,5 +173,10 @@ void View::SetRenderTargetClearColor(float r, float g, float b)
 Csm::CubismViewMatrix * View::GetViewMatrix(int id)
 {
 	return _viewData[id]._viewMatrix;
+}
+
+Csm::CubismMatrix44 *View::GetDeviceToScreenMatrix(int id)
+{
+	return _viewData[id]._deviceToScreen;
 }
 

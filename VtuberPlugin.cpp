@@ -12,6 +12,7 @@ namespace{
 	};
 
 	static uint16_t modelCount = 0;
+
 	}
 
 const char * VtuberPlugin::VtuberPlugin::VtuberGetName(void *unused)
@@ -27,8 +28,6 @@ void * VtuberPlugin::VtuberPlugin::VtuberCreate(obs_data_t *settings,
 	vtb->source = source;
 	vtb->modelId = modelCount;
 
-	VtuberFrameWork::InitVtuber(vtb->modelId);
-
 	double x = obs_data_get_double(settings, "x");
 	double y = obs_data_get_double(settings, "y");
 	int width = obs_data_get_int(settings, "width");
@@ -40,7 +39,7 @@ void * VtuberPlugin::VtuberPlugin::VtuberCreate(obs_data_t *settings,
 	VtuberFrameWork::UpData(vtb->modelId ,x, y, width, height, scale,
 				delayTime, random_motion, NULL);
 
-	
+	VtuberFrameWork::InitVtuber(vtb->modelId);
 
 	modelCount++;
 
@@ -53,8 +52,6 @@ void VtuberPlugin::VtuberPlugin::VtuberDestroy(void *data)
 	Vtuber_data *spv = (Vtuber_data *)data;
 
 	VtuberFrameWork::UinitVtuber(spv->modelId);
-
-	modelCount--;
 
 	delete spv;
 }
@@ -97,7 +94,7 @@ uint32_t VtuberPlugin::VtuberPlugin::VtuberHeight(void *data)
 	Vtuber_data *vtb = (Vtuber_data *)data;
 	return VtuberFrameWork::GetHeight(vtb->modelId);
 }
-
+/*
 static void fill_vtuber_model_list(obs_property_t *p, void *data)
 {
 	Vtuber_data *vtb = (Vtuber_data *)data;
@@ -107,7 +104,7 @@ static void fill_vtuber_model_list(obs_property_t *p, void *data)
 	for (int i = 0; i < size; i++) {
 			obs_property_list_add_string(p, modelFileName[i], modelFileName[i]);
 	}
-}
+}*/
 
 static bool vtuber_model_callback(obs_properties_t *props,
 				  obs_property_t *property,
@@ -130,21 +127,25 @@ obs_properties_t * VtuberPlugin::VtuberPlugin::VtuberGetProperties(void *data)
 	width = VtuberFrameWork::GetWidth(vtb->modelId);
 	height = VtuberFrameWork::GetHeight(vtb->modelId);
 
+        obs_properties_add_path(ppts, "models_path","Models Path", OBS_PATH_FILE,"*.model3.json", "Resources/");
+
+	/*
 	p = obs_properties_add_list(ppts, "model","Model",
 				    OBS_COMBO_TYPE_LIST,
 				    OBS_COMBO_FORMAT_STRING);
 
-	fill_vtuber_model_list(p, vtb);
+	fill_vtuber_model_list(p, vtb);*/
+	//obs_property_set_modified_callback(p, vtuber_model_callback);
 	
 	obs_properties_add_int(ppts, "width", "Width", 128, 1920, 32);
 	obs_properties_add_int(ppts, "height", "Height", 128, 1050, 32);
 	obs_properties_add_float_slider(ppts,"scale","Scale",0.5,10.0,0.1);
-	obs_properties_add_float_slider(ppts, "x", "x", -4.0, 4.0, 1);
-	obs_properties_add_float_slider(ppts, "y", "y", -4.0, 4.0, 1);
+	obs_properties_add_float_slider(ppts, "x", "x", -1.0, 1.0, 0.05);
+	obs_properties_add_float_slider(ppts, "y", "y", -1.0, 1.0, 0.05);
 	obs_properties_add_float_slider(ppts, "delay", "Delay time", 0.0, 10.0, 0.1);
 	obs_properties_add_bool(ppts,"random_motion","Random Motion");
 
-	obs_property_set_modified_callback(p, vtuber_model_callback);
+	
 
 	return ppts;
 }
@@ -154,10 +155,10 @@ void VtuberPlugin::VtuberPlugin::Vtuber_update(
 {
 	Vtuber_data *vtb = (Vtuber_data *)data;
 
-	const char *vtb_str = obs_data_get_string(settings, "model");
+	const char *vtb_str = obs_data_get_string(settings, "models_path");
 	
-	double x = obs_data_get_int(settings, "x");
-	double y = obs_data_get_int(settings, "y");
+	double x = obs_data_get_double(settings, "x");
+	double y = obs_data_get_double(settings, "y");
 	int width = obs_data_get_int(settings,"width");
 	int height = obs_data_get_int(settings, "height");
 	double vscale = obs_data_get_double(settings, "scale");
@@ -174,8 +175,8 @@ void VtuberPlugin::VtuberPlugin::Vtuber_defaults(
 	obs_data_set_default_int(settings, "width", 960);
 	obs_data_set_default_int(settings, "height", 960);
 	obs_data_set_default_double(settings, "x", 0);
-	obs_data_set_default_double(settings, "y", 0);
-	obs_data_set_default_double(settings, "scale", 2.0);
+	obs_data_set_default_double(settings, "y", 0.3);
+	obs_data_set_default_double(settings, "scale", 1.7);
 	obs_data_set_default_double(settings, "delaytime", 1.0);
 	obs_data_set_default_bool(settings, "random_motion", true);
 }

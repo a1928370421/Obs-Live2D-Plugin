@@ -9,7 +9,7 @@
 #include "LAppAllocator.hpp"
 #include <GLFW/glfw3.h>
 
-#define MAXMODELCOUNT 16
+#define MAXMODELCOUNT 1024
 
 class View;
 class LAppTextureManager;
@@ -21,17 +21,14 @@ class VtuberDelegate {
 
 	struct RenderInfo {
 
-		uint16_t SceneIdx;
-
 		double viewPoint_x;
 		double viewPoint_y;
-		int _windowWidth;
-		int _windowHeight; 				
+		int windowWidth;
+		int windowHeight; 				
 		double Scale;
-		double delaytime;
 
-		bool Resizeflag;
-		bool RandomMotion;
+		bool randomMotion;
+		double delayTime;
 	};
 
 public:
@@ -58,51 +55,40 @@ public:
 
     GLuint CreateShader();
 
+
     int getBufferWidth(int id);
 
     int getBufferHeight(int id);
 
     double getScale(int id);
 
-    void setScale(double _sc,int id);
-
     double GetX(int id);
-
-    void SetX(double _x, int id);
 
     double GetY(int id);
 
-    void SetY(double _y, int id);
+    void UpdataViewWindow(double _x,double _y,int _width, int _height,double _scale, int _id);
+
 
     View* GetView() { return _view; }
 
     LAppTextureManager* GetTextureManager() { return _textureManager; }
+
 
     /**
     * @brief 渲染一帧画面到指定缓冲
     */
     void Reader(int targatid, char *data, int bufferWidth, int bufferheight);
 
-    /**
-    * @brief 返回模型数
-    */
-    int ModelCount();
 
     void ChangeModel(const char *ModelName, int id);
 
-    const char** GetModelsName();
 
-    void Resize(int width, int height, int id);
 
-    void SetRandomMotion(bool _Random_Motion, int id);
+    void updataModelSetting(bool _randomMotion,double _delayTime,int id);
 
     bool GetRandomMotion(int id);
 
-    void SetDelayTime(double _delaytime,int id);
-
     double GetDelayTime(int id);
-
-    uint16_t GetSceneInx(int id);
 
 private:
     /**
@@ -130,8 +116,6 @@ private:
     GLFWwindow* _window;                         ///< OpenGL ウィンドウ
     View* _view;                             ///< View情報
     LAppTextureManager* _textureManager;         ///< テクスチャマネージャー
-
-    bool isINIT;
 
     char *ModelFileName[MAXMODELCOUNT];		///模型文件夹的名称集合
     int ModelFileCount;				///模型数量

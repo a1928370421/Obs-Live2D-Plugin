@@ -39,8 +39,6 @@ public:
      */
     void LoadAssets(const Csm::csmChar* dir, const  Csm::csmChar* fileName);
 
-    void ReleaseAsset();
-
     /**
      * @brief レンダラを再構築する
      *
@@ -104,11 +102,7 @@ public:
      */
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2& GetRenderBuffer();
 
-    void SetRandomMotion(bool _randomMotion);
-
-    void SetDelayTime(Csm::csmFloat32 _dt);
-
-    Csm::csmBool GetDisplay();
+    void UpdataSetting(Csm::csmBool _randomMotion, Csm::csmFloat32 _delayTime);
 
 protected:
     /**
@@ -170,10 +164,6 @@ private:
     Csm::csmVector<Csm::CubismIdHandle> _lipSyncIds; ///< モデルに設定されたリップシンク機能用パラメータID
     Csm::csmMap<Csm::csmString, Csm::ACubismMotion*>   _motions; ///< 読み込まれているモーションのリスト
     Csm::csmMap<Csm::csmString, Csm::ACubismMotion*>   _expressions; ///< 読み込まれている表情のリスト
-    Csm::csmVector<Csm::csmRectF> _hitArea;
-    Csm::csmVector<Csm::csmRectF> _userArea;
-    Csm::csmBool Random_Motion;
-    Csm::csmFloat32 _delayTime;
     const Csm::CubismId* _idParamAngleX; ///< パラメータID: ParamAngleX
     const Csm::CubismId* _idParamAngleY; ///< パラメータID: ParamAngleX
     const Csm::CubismId* _idParamAngleZ; ///< パラメータID: ParamAngleX
@@ -182,6 +172,9 @@ private:
     const Csm::CubismId* _idParamEyeBallY; ///< パラメータID: ParamEyeBallXY
 
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2  _renderBuffer;   ///< フレームバッファ以外の描画先
+
+    Csm::csmBool randomMotion;
+    Csm::csmFloat32 delayTime;
 };
 
 

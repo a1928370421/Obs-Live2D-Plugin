@@ -94,7 +94,7 @@ set(${APP_NAME}_SOURCES
 	LAppAllocator.cpp
 	LAppDefine.cpp	
 	VtuberDelegate.cpp	
-	LAppLive2DManager.cpp
+	Live2DManager.cpp
 	LAppModel.cpp	
 	LAppPal.cpp	
 	LAppTextureManager.cpp
@@ -108,7 +108,7 @@ set(${APP_NAME}_HEADERS
 	LAppAllocator.hpp
 	LAppDefine.hpp
 	VtuberDelegate.hpp
-	LAppLive2DManager.hpp
+	Live2DManager.hpp
 	LAppModel.hpp
 	LAppPal.hpp
 	View.hpp

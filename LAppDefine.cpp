@@ -24,9 +24,6 @@ namespace LAppDefine {
     const csmFloat32 ViewLogicalMaxBottom = -2.0f;
     const csmFloat32 ViewLogicalMaxTop = 2.0f;
 
-    // 相対パス
-    const csmChar *ResourcesPath = "Resources/";
-
     // 外部定義ファイル(json)と合わせる
     const csmChar* MotionGroupIdle = ""; // アイドリング
 

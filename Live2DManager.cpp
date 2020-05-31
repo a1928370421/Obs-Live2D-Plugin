@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-#include "LAppLive2DManager.hpp"
+#include "Live2DManager.hpp"
 #include <string>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -16,14 +16,12 @@
 #include "LAppModel.hpp"
 #include "View.hpp"
 
-//#define USE_RENDER_TARGET
-
 using namespace Csm;
 using namespace LAppDefine;
 using namespace std;
 
 namespace {
-    LAppLive2DManager* s_instance = NULL;
+    Live2DManager* s_instance = NULL;
 
     void FinishedMotion(ACubismMotion* self)
     {
@@ -31,17 +29,17 @@ namespace {
     }
 }
 
-LAppLive2DManager* LAppLive2DManager::GetInstance()
+Live2DManager* Live2DManager::GetInstance()
 {
     if (s_instance == NULL)
     {
-        s_instance = new LAppLive2DManager();
+        s_instance = new Live2DManager();
     }
 
     return s_instance;
 }
 
-void LAppLive2DManager::ReleaseInstance()
+void Live2DManager::ReleaseInstance()
 {
     if (s_instance != NULL)
     {
@@ -51,12 +49,12 @@ void LAppLive2DManager::ReleaseInstance()
     s_instance = NULL;
 }
 
-LAppLive2DManager::LAppLive2DManager()
+Live2DManager::Live2DManager()
 {
-	ChangeScene(0,0);
+
 }
 
-LAppLive2DManager::~LAppLive2DManager()
+Live2DManager::~Live2DManager()
 {
 	for (size_t i = 0; i < 16; i++) {
 		ReleaseAllModel(i);
@@ -64,24 +62,17 @@ LAppLive2DManager::~LAppLive2DManager()
     
 }
 
-void LAppLive2DManager::ReleaseAllModel(Csm::csmUint16 id)
+void Live2DManager::ReleaseAllModel(Csm::csmUint16 id)
 {
     for (csmUint32 i = 0; i < _modeldata[id]._models.GetSize(); i++)
     {
 		delete _modeldata[id]._models[i];
     }
     _modeldata[id]._models.Clear();
+    _modeldata[id]._modelPath.Clear();
 }
 
-void LAppLive2DManager::ReleaseModel(Csm::csmUint16 id) {
-	for (csmUint32 i = 0; i < _modeldata[id]._models.GetSize();
-	     i++) {
-		delete _modeldata[id]._models[i];
-	}
-	_modeldata[id]._models.Clear();
-}
-
-LAppModel *LAppLive2DManager::GetModel(Csm::csmUint16 id) const
+LAppModel *Live2DManager::GetModel(Csm::csmUint16 id) const
 {
     if (0 < _modeldata[id]._models.GetSize())
     {
@@ -90,14 +81,14 @@ LAppModel *LAppLive2DManager::GetModel(Csm::csmUint16 id) const
     return NULL;
 }
 
-void LAppLive2DManager::OnUpdate(Csm::csmUint16 id) const
+void Live2DManager::OnUpdate(Csm::csmUint16 id) const
 {    
     CubismMatrix44 projection;
-    CubismMatrix44 *_viewMatrix =VtuberDelegate::GetInstance()->GetView()->GetViewMatrix(id);
+    CubismMatrix44 *_viewMatrix = VtuberDelegate::GetInstance()->GetView()->GetViewMatrix(id);
 
     if (_viewMatrix != NULL)
     {
-	projection.MultiplyByMatrix(_viewMatrix);	
+	    projection.MultiplyByMatrix(_viewMatrix);	
     }
 
         LAppModel* model = GetModel(id);
@@ -105,8 +96,9 @@ void LAppLive2DManager::OnUpdate(Csm::csmUint16 id) const
 	if (model) {
 		VtuberDelegate::GetInstance()->GetView()->PreModelDraw(*model,id);
 	
-		model->SetRandomMotion(VtuberDelegate::GetInstance()->GetRandomMotion(id));
-		model->SetDelayTime(VtuberDelegate::GetInstance()->GetDelayTime(id));
+		model->UpdataSetting(
+			VtuberDelegate::GetInstance()->GetRandomMotion(id),
+			VtuberDelegate::GetInstance()->GetDelayTime(id));
 		model->Update();
 		model->Draw(projection);
 
@@ -114,27 +106,26 @@ void LAppLive2DManager::OnUpdate(Csm::csmUint16 id) const
 	}
 }
 
-void LAppLive2DManager::ChangeScene(Csm::csmInt32 index, Csm::csmInt16 _id)
+void Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
+				Csm::csmInt16 _id)
 {
-    _modeldata[_id]._sceneIndex = index;
-    if (DebugLogEnable)
-    {
-        //LAppPal::PrintLog("[APP]model index: %d", _sceneIndex);
-    }
-    const char **ModelDir = VtuberDelegate::GetInstance()->GetModelsName();
-    // ModelDir[]に保持したディレクトリ名から
-    // model3.jsonのパスを決定する.
-    // ディレクトリ名とmodel3.jsonの名前を一致させておくこと.
-    std::string model = ModelDir[index];
-    std::string modelPath = ResourcesPath + model + "/";
-    std::string modelJsonName = ModelDir[index];
-    modelJsonName += ".model3.json";
+     if (strcmp(_modelPath, "") == 0)
+	return;
 
-    //delete _models[id];
+    if (strcmp(_modeldata[_id]._modelPath.GetRawString(), _modelPath) == 0)
+	 return;
+
+    //E:/obspl/build/rundir/Debug/bin/64bit/Resources/l2d03.u/l2d03.u.model3.json
+    string modelFilePath = std::string(_modelPath);
+    size_t pos = modelFilePath.rfind("/");
+    string modelPath = modelFilePath.substr(0,pos+1);
+    string modelJsonName = modelFilePath.substr(pos+1, modelFilePath.size()-pos-1);
+
     ReleaseAllModel(_id);
     _modeldata[_id]._models.PushBack(new LAppModel());
     _modeldata[_id]._models[0]->LoadAssets(modelPath.c_str(),modelJsonName.c_str());
-
+    _modeldata[_id]._models[0]->ReloadRenderer();
+    _modeldata[_id]._modelPath = _modelPath;
     /*
      * モデル半透明表示を行うサンプルを提示する。
      * ここでUSE_RENDER_TARGET、USE_MODEL_RENDER_TARGETが定義されている場合
@@ -168,5 +159,7 @@ void LAppLive2DManager::ChangeScene(Csm::csmInt32 index, Csm::csmInt16 _id)
 		clearColor[0], clearColor[1], clearColor[2]);
     }
 }
+
+
 
 

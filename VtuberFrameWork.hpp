@@ -16,10 +16,6 @@ public:
 	static void UpData(int id,double _x, double _y, int width, int height,
 			   double scale,double delayTime, bool randomMotion, const char *ModelName);
 
-	static const char **GetModelFileName();
-
-	static int ModelNum();
-
 	static int GetWidth(int id);
 
 	static int GetHeight(int id);

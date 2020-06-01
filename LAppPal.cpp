@@ -24,10 +24,6 @@ using namespace Csm;
 using namespace std;
 using namespace Define;
 
-double LAppPal::s_currentFrame = 0.0;
-double LAppPal::s_lastFrame = 0.0;
-double LAppPal::s_deltaTime = 0.0;
-
 csmByte* LAppPal::LoadFileAsBytes(const string filePath, csmSizeInt* outSize)
 {
     //filePath;//
@@ -84,18 +80,6 @@ csmByte* LAppPal::LoadFileAsBytes(const string filePath, csmSizeInt* outSize)
 void LAppPal::ReleaseBytes(csmByte* byteData)
 {
     delete[] byteData;
-}
-
-csmFloat32  LAppPal::GetDeltaTime()
-{
-    return static_cast<csmFloat32>(s_deltaTime);
-}
-
-void LAppPal::UpdateTime()
-{
-    s_currentFrame = glfwGetTime();
-    s_deltaTime = s_currentFrame - s_lastFrame;
-    s_lastFrame = s_currentFrame;
 }
 
 void LAppPal::PrintLog(const csmChar* format, ...)

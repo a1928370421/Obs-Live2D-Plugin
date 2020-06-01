@@ -44,14 +44,14 @@ void VtuberDelegate::ReleaseInstance()
 bool VtuberDelegate::LoadResource(int id)
 {
 	_view->Initialize(id);
-
 	return true;
 }
 
 void VtuberDelegate::ReleaseResource(int id) {
 
-	  Live2DManager::GetInstance()->ReleaseAllModel(id);
-
+	Live2DManager::GetInstance()->ReleaseAllModel(id);
+	_renderInfo[id].isLoadResource = false;
+	_view->Release(id);
 }
 
 
@@ -124,13 +124,13 @@ void VtuberDelegate::Release()
 
 void VtuberDelegate::Reader(int id,char *buffer,int bufferWidth, int bufferheight)
 {
-
-	LAppPal::UpdateTime();
 	
-	//描画更新
+		//描画更新
 	_view->Render(id);
 	
 	glReadPixels(0, 0, bufferWidth, bufferheight, GL_RGBA, GL_UNSIGNED_BYTE,buffer);
+
+
 }
 
 void VtuberDelegate::UpdataViewWindow(double _x, double _y, int _width,
@@ -175,10 +175,13 @@ bool VtuberDelegate::GetEyeBlink(int id)
 void VtuberDelegate::ChangeModel(const char *ModelName, int id)
 {
 	if (ModelName == NULL) {
+		_renderInfo[id].isLoadResource = false;
 		return;
 	}		
-	Live2DManager::GetInstance()->ChangeScene(ModelName, id);	
-
+	if (Live2DManager::GetInstance()->ChangeScene(ModelName, id))
+		_renderInfo[id].isLoadResource = true;
+	else 
+		_renderInfo[id].isLoadResource = false;		
 }
 
 VtuberDelegate::VtuberDelegate()
@@ -206,8 +209,6 @@ void VtuberDelegate::InitializeCubism()
 
     //default proj
     CubismMatrix44 projection;
-
-    LAppPal::UpdateTime();
 }
 
 GLuint VtuberDelegate::CreateShader()
@@ -258,6 +259,11 @@ GLuint VtuberDelegate::CreateShader()
     glUseProgram(programId);
 
     return programId;
+}
+
+bool VtuberDelegate::isLoadResource(int id)
+{
+	return _renderInfo[id].isLoadResource;
 }
 
 int VtuberDelegate::getBufferWidth(int id)

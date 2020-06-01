@@ -20,6 +20,7 @@ class LAppTextureManager;
 class VtuberDelegate {
 
 	struct RenderInfo {
+		bool isLoadResource;
 		//view
 		double viewPoint_x;
 		double viewPoint_y;
@@ -62,6 +63,7 @@ public:
 
     GLuint CreateShader();
 
+    bool isLoadResource(int id);
 
     int getBufferWidth(int id);
 

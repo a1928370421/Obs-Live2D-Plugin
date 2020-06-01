@@ -49,7 +49,7 @@ public:
      * @brief   モデルの更新処理。モデルのパラメータから描画状態を決定する。
      *
      */
-    void Update();
+    void Update(Csm::csmUint16 _id);
 
     /**
      * @brief   モデルを描画する処理。モデルを描画する空間のView-Projection行列を渡す。
@@ -105,6 +105,12 @@ public:
     void UpdataSetting(Csm::csmBool _randomMotion, Csm::csmFloat32 _delayTime,
 		       Csm::csmBool _isBreath, Csm::csmBool _isEyeBlink);
 
+
+    Csm::csmFloat32 GetDeltaTime();
+
+    void UpdateTime();
+
+
 protected:
     /**
      *  @brief  モデルを描画する処理。モデルを描画する空間のView-Projection行列を渡す。
@@ -120,7 +126,7 @@ private:
      * @param[in]   setting     ICubismModelSettingのインスタンス
      *
      */
-    void SetupModel(Csm::ICubismModelSetting* setting);
+    Csm::csmBool SetupModel(Csm::ICubismModelSetting *setting);
 
     /**
      * @brief OpenGLのテクスチャユニットにテクスチャをロードする
@@ -178,6 +184,10 @@ private:
     Csm::csmFloat32 delayTime;
     Csm::csmBool isBreath;
     Csm::csmBool isEyeBlink;
+
+    Csm::csmFloat32 s_currentFrame;
+    Csm::csmFloat32 s_lastFrame;
+    Csm::csmFloat32 s_deltaTime;
 };
 
 

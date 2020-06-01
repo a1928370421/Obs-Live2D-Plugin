@@ -31,7 +31,7 @@ namespace Define {
     const csmInt32 PriorityForce = 3;
 
     // デバッグ用ログの表示オプション
-    const csmBool DebugLogEnable = true;
+    const csmBool DebugLogEnable = false;
     const csmBool DebugTouchLogEnable = false;
 
     // Frameworkから出力するログのレベル設定

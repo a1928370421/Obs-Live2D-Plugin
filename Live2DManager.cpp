@@ -85,6 +85,8 @@ void Live2DManager::OnUpdate(Csm::csmUint16 id) const
 {    
     CubismMatrix44 projection;
     CubismMatrix44 *_viewMatrix = VtuberDelegate::GetInstance()->GetView()->GetViewMatrix(id);
+    Csm::csmUint16 viewerCount =
+	    VtuberDelegate::GetInstance()->GetView()->GetTotalViewer();
 
     if (_viewMatrix != NULL)
     {
@@ -95,27 +97,28 @@ void Live2DManager::OnUpdate(Csm::csmUint16 id) const
 
 	if (model) {
 		VtuberDelegate::GetInstance()->GetView()->PreModelDraw(*model,id);
-	
+
+		model->UpdateTime();
 		model->UpdataSetting(
 			VtuberDelegate::GetInstance()->GetRandomMotion(id),
 			VtuberDelegate::GetInstance()->GetDelayTime(id),
 			VtuberDelegate::GetInstance()->GetBreath(id),
 			VtuberDelegate::GetInstance()->GetEyeBlink(id));
-		model->Update();
+		model->Update(id);
 		model->Draw(projection);
 
-		VtuberDelegate::GetInstance()->GetView()->PostModelDraw(*model);
+		VtuberDelegate::GetInstance()->GetView()->PostModelDraw(*model,id);
 	}
 }
 
-void Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
+Csm::csmBool Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
 				Csm::csmInt16 _id)
 {
      if (strcmp(_modelPath, "") == 0)
-	return;
+	return true;
 
     if (strcmp(_modeldata[_id]._modelPath.GetRawString(), _modelPath) == 0)
-	 return;
+	 return true;
 
     //E:/obspl/build/rundir/Debug/bin/64bit/Resources/l2d03.u/l2d03.u.model3.json
     string modelFilePath = std::string(_modelPath);
@@ -123,10 +126,21 @@ void Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
     string modelPath = modelFilePath.substr(0,pos+1);
     string modelJsonName = modelFilePath.substr(pos+1, modelFilePath.size()-pos-1);
 
-    ReleaseAllModel(_id);
+    if (VtuberDelegate::GetInstance()->isLoadResource(_id))
+		ReleaseAllModel(_id);
+
     _modeldata[_id]._models.PushBack(new LAppModel());
-    if(_modeldata[_id]._models[0]->LoadAssets(modelPath.c_str(),modelJsonName.c_str()))
-	_modeldata[_id]._modelPath = _modelPath;
+
+    if (_modeldata[_id]._models[0]->LoadAssets(modelPath.c_str(),
+					       modelJsonName.c_str())) {
+	    _modeldata[_id]._modelPath = _modelPath;
+    }
+    else {
+	    _modeldata[_id]._models.Clear();
+	    return false;
+    }
+
+	    
     /*
      * モデル半透明表示を行うサンプルを提示する。
      * ここでUSE_RENDER_TARGET、USE_MODEL_RENDER_TARGETが定義されている場合
@@ -141,7 +155,7 @@ void Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
         View::SelectTarget useRenderTarget = View::SelectTarget_ModelFrameBuffer;
 #else
         // デフォルトのメインフレームバッファへレンダリングする(通常)
-        View::SelectTarget useRenderTarget = View::SelectTarget_None;
+        SelectTarget useRenderTarget = SelectTarget_None;
 #endif
 
 #if defined(USE_RENDER_TARGET) || defined(USE_MODEL_RENDER_TARGET)
@@ -151,12 +165,15 @@ void Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
         _models[1]->GetModelMatrix()->TranslateX(0.2f);
 #endif
 
-        VtuberDelegate::GetInstance()->GetView()->SwitchRenderingTarget(useRenderTarget);
+        VtuberDelegate::GetInstance()->GetView()->SwitchRenderingTarget(
+		useRenderTarget, _id);
 
         // 別レンダリング先を選択した際の背景クリア色
         float clearColor[3] = { 1.0f, 1.0f, 1.0f };
 	VtuberDelegate::GetInstance()->GetView()->SetRenderTargetClearColor(
 		clearColor[0], clearColor[1], clearColor[2]);
+
+	return true;
     }
 }
 

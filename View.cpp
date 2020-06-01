@@ -11,7 +11,7 @@
 using namespace std;
 using namespace Define;
 
-View::View() : _programId(0), _renderTarget(SelectTarget_None)
+View::View() : _programId(0), dataCount(0)
 {
     _clearColor[0] = 1.0f;
     _clearColor[1] = 1.0f;
@@ -66,11 +66,14 @@ void View::Initialize(int id)
         ViewLogicalMaxBottom,
         ViewLogicalMaxTop
     );
+
+    dataCount++;
 }
 
 void View::Release(int id) {
 	delete _viewData[id]._viewMatrix;
 	delete _viewData[id]._deviceToScreen;
+	dataCount--;
 }
 
 void View::Render(int id)
@@ -121,9 +124,11 @@ void View::PreModelDraw(LAppModel& refModel,int id)
 {
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2* useTarget = NULL;
 
-    if (_renderTarget != SelectTarget_None)
+    if (_viewData[id].target != SelectTarget_None)
     {
-        useTarget = (_renderTarget == SelectTarget_ViewFrameBuffer) ? &_renderBuffer : &refModel.GetRenderBuffer();
+	    useTarget = (_viewData[id].target == SelectTarget_ViewFrameBuffer)
+				? &_renderBuffer
+				: &refModel.GetRenderBuffer();
 
         if (!useTarget->IsValid())
         {
@@ -146,21 +151,23 @@ void View::PreModelDraw(LAppModel& refModel,int id)
     }
 }
 
-void View::PostModelDraw(LAppModel& refModel)
+void View::PostModelDraw(LAppModel& refModel,int id)
 {
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2* useTarget = NULL;
 
-    if (_renderTarget != SelectTarget_None)
+    if (_viewData[id].target != SelectTarget_None)
     {
-        useTarget = (_renderTarget == SelectTarget_ViewFrameBuffer) ? &_renderBuffer : &refModel.GetRenderBuffer();
+	    useTarget = (_viewData[id].target == SelectTarget_ViewFrameBuffer)
+				? &_renderBuffer
+				: &refModel.GetRenderBuffer();
      
         useTarget->EndDraw();
     } 
 }
 
-void View::SwitchRenderingTarget(SelectTarget targetType)
+void View::SwitchRenderingTarget(SelectTarget targetType,int id)
 {
-    _renderTarget = targetType;
+    _viewData[id].target = targetType;
 }
 
 void View::SetRenderTargetClearColor(float r, float g, float b)
@@ -178,5 +185,10 @@ Csm::CubismViewMatrix * View::GetViewMatrix(int id)
 Csm::CubismMatrix44 *View::GetDeviceToScreenMatrix(int id)
 {
 	return _viewData[id]._deviceToScreen;
+}
+
+uint16_t View::GetTotalViewer()
+{
+	return dataCount;
 }
 

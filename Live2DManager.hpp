@@ -69,7 +69,7 @@ public:
     * @brief   シーンを切り替える<br>
     *           サンプルアプリケーションではモデルセットの切り替えを行う。
     */
-    void ChangeScene(const Csm::csmChar * _modelPath,Csm::csmInt16 _id);
+    Csm::csmBool ChangeScene(const Csm::csmChar * _modelPath,Csm::csmInt16 _id);
 
 private:
     /**

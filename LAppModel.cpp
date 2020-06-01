@@ -46,7 +46,11 @@ LAppModel::LAppModel()
      randomMotion(true),
 	  delayTime(5.0f),
 	  isBreath(true),
-	  isEyeBlink(true)
+	  isEyeBlink(true),
+	  s_currentFrame(0.0f),
+          s_lastFrame(0.0f),
+         s_deltaTime(0.0f)
+
 {
     if (DebugLogEnable)
     {
@@ -84,13 +88,17 @@ csmBool LAppModel::LoadAssets(const csmChar* dir, const csmChar* fileName)
     const csmString path = csmString(dir) + fileName;
 
     csmByte* buffer = CreateBuffer(path.GetRawString(), &size);
-    if (size == 0)
-	    return false;
+    if (size == 0) {
+	DeleteBuffer(buffer, path.GetRawString());
+	return false;
+    }
+	    
 
     ICubismModelSetting* setting = new CubismModelSettingJson(buffer, size);
     DeleteBuffer(buffer, path.GetRawString());
 
-    SetupModel(setting);
+    if (!SetupModel(setting))
+	    return false;
 
     CreateRenderer();
 
@@ -101,7 +109,7 @@ csmBool LAppModel::LoadAssets(const csmChar* dir, const csmChar* fileName)
 
 
 
-void LAppModel::SetupModel(ICubismModelSetting* setting)
+Csm::csmBool LAppModel::SetupModel(ICubismModelSetting *setting)
 {
     _updating = true;
     _initialized = false;
@@ -121,8 +129,12 @@ void LAppModel::SetupModel(ICubismModelSetting* setting)
 	if (size != 0) {
 		LoadModel(buffer, size);
 		DeleteBuffer(buffer, path.GetRawString());
-	}
-    }
+	} else {
+		DeleteBuffer(buffer, path.GetRawString());
+		return false;
+	}	
+    } else
+	    return false;
 
     //Expression
     if (_modelSetting->GetExpressionCount() > 0)
@@ -245,6 +257,8 @@ void LAppModel::SetupModel(ICubismModelSetting* setting)
 
     _updating = false;
     _initialized = true;
+
+    return true;
 }
 
 csmBool LAppModel::PreloadMotionGroup(const csmChar* group)
@@ -339,9 +353,9 @@ void LAppModel::ReleaseExpressions()
     _expressions.Clear();
 }
 
-void LAppModel::Update()
+void LAppModel::Update(Csm::csmUint16 _id)
 {
-    const csmFloat32 deltaTimeSeconds =delayTime * LAppPal::GetDeltaTime();
+    const csmFloat32 deltaTimeSeconds =delayTime * GetDeltaTime();
     _userTimeSeconds += deltaTimeSeconds;
 
     // モーションによるパラメータ更新の有無
@@ -634,6 +648,17 @@ void LAppModel::UpdataSetting(Csm::csmBool _randomMotion,
 	delayTime = _delayTime;
 	isBreath = _isBreath;
 	isEyeBlink = _isEyeBlink;
+}
+
+csmFloat32 LAppModel::GetDeltaTime()
+{
+	return static_cast<csmFloat32>(s_deltaTime);
+}
+
+void LAppModel::UpdateTime() {
+		s_currentFrame = glfwGetTime();
+		s_deltaTime = s_currentFrame - s_lastFrame;
+		s_lastFrame = s_currentFrame;
 }
 
 

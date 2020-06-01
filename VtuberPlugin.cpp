@@ -21,7 +21,7 @@ namespace{
 		uint16_t modelId;
 	};
 
-	static uint16_t modelCount = 0;
+	static uint64_t modelCount = 0;
 
 	}
 

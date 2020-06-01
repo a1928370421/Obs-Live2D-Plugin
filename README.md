@@ -14,9 +14,9 @@
 * 在OBS的根目录下创建Resources文件夹
 * 在创建好的Resources文件夹里放入Live2d导出的模型
 # 效果展示
-* ![vt.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/vt.PNG)
-* ![vt2.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/vt2.PNG)
-* ![vt3.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/vt3.PNG)
+* ![vt.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt.PNG)
+* ![vt2.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt2.PNG)
+* ![vt3.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt3.gif)
 # 如何编译
 * 施工中...
 # 资源

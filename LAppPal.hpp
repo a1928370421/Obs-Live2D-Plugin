@@ -16,6 +16,7 @@
 * ファイル読み込みや時刻取得等のプラットフォームに依存する関数をまとめる
 *
 */
+
 class LAppPal
 {
 public:
@@ -39,16 +40,6 @@ public:
     * @param[in]   byteData    解放したいバイトデータ
     */
     static void ReleaseBytes(Csm::csmByte* byteData);
-
-    /**
-    * @biref   デルタ時間（前回フレームとの差分）を取得する
-    *
-    * @return  デルタ時間[ms]
-    *
-    */
-    static Csm::csmFloat32 GetDeltaTime();
-
-    static void UpdateTime();
 
     /**
     * @brief ログを出力する
@@ -75,9 +66,5 @@ public:
 
     static int GetAllDirName(const char *csDir,char **Files);
 
-private:
-    static double s_currentFrame;
-    static double s_lastFrame;
-    static double s_deltaTime;
 };
 

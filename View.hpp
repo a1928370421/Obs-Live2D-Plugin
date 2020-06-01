@@ -12,24 +12,25 @@
 
 class LAppModel;
 
+enum SelectTarget
+    {
+        SelectTarget_None,                ///< デフォルトのフレームバッファにレンダリング
+        SelectTarget_ModelFrameBuffer,    ///< LAppModelが各自持つフレームバッファにレンダリング
+        SelectTarget_ViewFrameBuffer,     ///< Viewの持つフレームバッファにレンダリング
+    };
+
 /**
 * @brief 描画クラス
 */
 struct ViewData {
 	Csm::CubismViewMatrix *_viewMatrix;
 	Csm::CubismMatrix44 *_deviceToScreen;
+	SelectTarget target;
 };
 
 class View
 {
 public:
-
-    enum SelectTarget
-    {
-        SelectTarget_None,                ///< デフォルトのフレームバッファにレンダリング
-        SelectTarget_ModelFrameBuffer,    ///< LAppModelが各自持つフレームバッファにレンダリング
-        SelectTarget_ViewFrameBuffer,     ///< Viewの持つフレームバッファにレンダリング
-    };
 
     View();
 
@@ -51,9 +52,9 @@ public:
 
     void PreModelDraw(LAppModel& refModel,int id);
 
-    void PostModelDraw(LAppModel& refModel);
+    void PostModelDraw(LAppModel &refModel, int id);
 
-    void SwitchRenderingTarget(SelectTarget targetType);
+    void SwitchRenderingTarget(SelectTarget targetType,int id);
 
     void SetRenderTargetClearColor(float r, float g, float b);
 
@@ -61,12 +62,16 @@ public:
 
      Csm::CubismMatrix44 *GetDeviceToScreenMatrix(int id);
 
+     uint16_t GetTotalViewer();
+
+
 private:
     ViewData _viewData[MAXVIEWDATA];
+
+    uint16_t dataCount;
 
     GLuint _programId;                       ///< シェーダID
 
     Csm::Rendering::CubismOffscreenFrame_OpenGLES2 _renderBuffer;   ///< モードによってはCubismモデル結果をこっちにレンダリング
-    SelectTarget _renderTarget;     ///< レンダリング先の選択肢
     float _clearColor[4];           ///< レンダリングターゲットのクリアカラー
 };

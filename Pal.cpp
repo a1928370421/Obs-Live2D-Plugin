@@ -1,11 +1,4 @@
-/**
- * Copyright(c) Live2D Inc. All rights reserved.
- *
- * Use of this source code is governed by the Live2D Open Software license
- * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
- */
-
-#include "LAppPal.hpp"
+#include "Pal.hpp"
 #include <cstdio>
 #include <stdarg.h>
 #include <sys/stat.h>
@@ -24,7 +17,7 @@ using namespace Csm;
 using namespace std;
 using namespace Define;
 
-csmByte* LAppPal::LoadFileAsBytes(const string filePath, csmSizeInt* outSize)
+csmByte* Pal::LoadFileAsBytes(const string filePath, csmSizeInt* outSize)
 {
     //filePath;//
     const char* path = filePath.c_str();
@@ -65,24 +58,20 @@ csmByte* LAppPal::LoadFileAsBytes(const string filePath, csmSizeInt* outSize)
     file.open(wstr, std::ios::in | std::ios::binary);
     if (!file.is_open())
     {
-        if (DebugLogEnable)
-        {
-            PrintLog("file open error");
-        }
         return NULL;
     }
     file.read(buf, size);
     file.close();
-
+    delete [] wstr;
     return reinterpret_cast<csmByte*>(buf);
 }
 
-void LAppPal::ReleaseBytes(csmByte* byteData)
+void Pal::ReleaseBytes(csmByte* byteData)
 {
     delete[] byteData;
 }
 
-void LAppPal::PrintLog(const csmChar* format, ...)
+void Pal::PrintLog(const csmChar *format, ...)
 {
     va_list args;
     csmChar buf[256];
@@ -97,23 +86,32 @@ void LAppPal::PrintLog(const csmChar* format, ...)
     va_end(args);
 }
 
-void LAppPal::PrintMessage(const csmChar* message)
+void Pal::PrintMessage(const csmChar* message)
 {
     PrintLog("%s", message);
 }
 
-bool LAppPal::IsPathExist(const char *csDir)
+bool Pal::IsFileExist(const char *csDir)
 {
+	bool re;
+
 	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, csDir, -1, NULL, 0);
 	wchar_t *wstr = new wchar_t[wchars_num];
 	MultiByteToWideChar(CP_UTF8, 0, csDir, -1, wstr, wchars_num);
-
-	DWORD dwAttrib = GetFileAttributes(wstr);
+	
+	int size = 0;
+	struct _stat64 statBuf;
+	if (_wstat64(wstr, &statBuf) == 0) {
+		re = true;
+	} else {
+		re = false;
+	}
 	delete[] wstr;
-	return INVALID_FILE_ATTRIBUTES != dwAttrib && 0 != (dwAttrib & FILE_ATTRIBUTE_DIRECTORY);
+
+	return re;
 }
 
-int LAppPal::GetAllDirName(const char *csDir, char **Files)
+int Pal::GetAllDirName(const char *csDir, char **Files)
 {
 	int i = 0;
 

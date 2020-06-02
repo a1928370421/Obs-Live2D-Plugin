@@ -11,7 +11,7 @@
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "LAppPal.hpp"
+#include "Pal.hpp"
 
 LAppTextureManager::LAppTextureManager()
 {
@@ -39,7 +39,7 @@ LAppTextureManager::TextureInfo* LAppTextureManager::CreateTextureFromPngFile(st
     unsigned char* png;
     unsigned char* address;
 
-    address = LAppPal::LoadFileAsBytes(fileName, &size);
+    address = Pal::LoadFileAsBytes(fileName, &size);
 
     // png情報を取得する
     png = stbi_load_from_memory(
@@ -72,7 +72,7 @@ LAppTextureManager::TextureInfo* LAppTextureManager::CreateTextureFromPngFile(st
 
     // 解放処理
     stbi_image_free(png);
-    LAppPal::ReleaseBytes(address);
+    Pal::ReleaseBytes(address);
 
     LAppTextureManager::TextureInfo* textureInfo = new LAppTextureManager::TextureInfo();
     if (textureInfo != NULL)

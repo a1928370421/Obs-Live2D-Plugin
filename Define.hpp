@@ -33,13 +33,9 @@ namespace Define {
     extern const csmInt32 PriorityNormal;           ///< モーションの優先度定数: 2
     extern const csmInt32 PriorityForce;            ///< モーションの優先度定数: 3
 
-                                                    // デバッグ用ログの表示
-    extern const csmBool DebugLogEnable;            ///< デバッグ用ログ表示の有効・無効
-    extern const csmBool DebugTouchLogEnable;       ///< タッチ処理のデバッグ用ログ表示の有効・無効
-
     // Frameworkから出力するログのレベル設定
     extern const CubismFramework::Option::LogLevel CubismLoggingLevel;
-
+    extern const csmBool DebugMod;
         // デフォルトのレンダーターゲットサイズ
     extern const csmInt32 RenderTargetWidth;
     extern const csmInt32 RenderTargetHeight;

@@ -1,7 +1,7 @@
 #include "View.hpp"
 #include <math.h>
 #include <string>
-#include "LAppPal.hpp"
+#include "Pal.hpp"
 #include "VtuberDelegate.hpp"
 #include "Live2DManager.hpp"
 #include "LAppTextureManager.hpp"

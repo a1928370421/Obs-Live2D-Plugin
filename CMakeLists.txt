@@ -93,7 +93,7 @@ set(${APP_NAME}_SOURCES
 	VtuberDelegate.cpp	
 	Live2DManager.cpp
 	LAppModel.cpp	
-	LAppPal.cpp	
+	Pal.cpp	
 	LAppTextureManager.cpp
 	LAppTextureManager.hpp
 	View.cpp	
@@ -107,7 +107,7 @@ set(${APP_NAME}_HEADERS
 	VtuberDelegate.hpp
 	Live2DManager.hpp
 	LAppModel.hpp
-	LAppPal.hpp
+	Pal.hpp
 	View.hpp
 	VtuberFrameWork.hpp
 	VtuberPlugin.hpp)

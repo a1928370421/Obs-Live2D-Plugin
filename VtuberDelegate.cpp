@@ -7,10 +7,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "View.hpp"
-#include "LAppPal.hpp"
+#include "Pal.hpp"
 #include "Define.hpp"
 #include "Live2DManager.hpp"
-#include "LAppTextureManager.hpp" 
+#include "LAppTextureManager.hpp"
+
 using namespace Csm;
 using namespace std;
 using namespace Define;
@@ -18,8 +19,12 @@ using namespace Define;
 namespace {
 VtuberDelegate *s_instance = NULL;
 
-    static int VtuberCount = 0;
-}
+    static uint16_t VtuberCount = 0;
+
+    static bool isFirst = true;
+
+    static GLFWwindow *_window;
+    }
 
 VtuberDelegate *VtuberDelegate::GetInstance()
 {
@@ -48,53 +53,40 @@ bool VtuberDelegate::LoadResource(int id)
 }
 
 void VtuberDelegate::ReleaseResource(int id) {
-
-	Live2DManager::GetInstance()->ReleaseAllModel(id);
 	_renderInfo[id].isLoadResource = false;
 	_view->Release(id);
 }
 
 
 bool VtuberDelegate::Initialize()
-{   
-    if (DebugLogEnable)
-    {
-        LAppPal::PrintLog("START");
-    }
-
-    // GLFWの初期化
-    if (glfwInit() == GL_FALSE)
-    {
-        if (DebugLogEnable)
-        {
-            LAppPal::PrintLog("Can't initilize GLFW");
-        }
-        return GL_FALSE;
-    }
+{	
+    //Gl Init
+    if (isFirst) {
+	    isFirst = false;
+	 // GLFWの初期化
+	    if (glfwInit() == GL_FALSE)
+	    {
+		return GL_FALSE;
+	    }
     
-    // Windowの生成_
-    glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-    _window = glfwCreateWindow(RenderTargetWidth, RenderTargetHeight, "vtuber", NULL,
-			       NULL);
-    if (_window == NULL)
-    {
-        if (DebugLogEnable)
-        {
-            LAppPal::PrintLog("Can't create GLFW window.");
-        }
-        glfwTerminate();
-        return GL_FALSE;
+	    // Windowの生成_
+	    glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+	    _window = glfwCreateWindow(RenderTargetWidth, RenderTargetHeight, "vtuber", NULL,NULL);
+	    if (_window == NULL)
+	    {
+		glfwTerminate();
+		return GL_FALSE;
+	    }
+
+	    glfwMakeContextCurrent(_window);
+
+	    glewExperimental = GL_TRUE;
+	    if (glewInit() != GLEW_OK) {
+		    glfwTerminate();
+		    return GL_FALSE;
+	    }
     }
 
-    glfwMakeContextCurrent(_window);
-    if (glewInit() != GLEW_OK) {
-        if (DebugLogEnable)
-        {
-            LAppPal::PrintLog("Can't initilize glew.");
-        }
-        glfwTerminate();
-        return GL_FALSE;
-    }
     // Cubism SDK の初期化
     InitializeCubism();
 
@@ -103,11 +95,9 @@ bool VtuberDelegate::Initialize()
 
 void VtuberDelegate::Release()
 {   
+        //glfwDestroyWindow(_window);
 
-
-        glfwDestroyWindow(_window);
-
-        glfwTerminate();
+        //glfwTerminate();
 
         delete _textureManager;
 
@@ -115,22 +105,19 @@ void VtuberDelegate::Release()
 
         Live2DManager::ReleaseInstance();
 
-        CubismFramework::Dispose();
+	CubismFramework::CleanUp();   
 
-        CubismFramework::CleanUp();   
+        CubismFramework::Dispose();
 
         ReleaseInstance();
 }
 
 void VtuberDelegate::Reader(int id,char *buffer,int bufferWidth, int bufferheight)
-{
-	
-		//描画更新
+{	
+	//描画更新
 	_view->Render(id);
 	
 	glReadPixels(0, 0, bufferWidth, bufferheight, GL_RGBA, GL_UNSIGNED_BYTE,buffer);
-
-
 }
 
 void VtuberDelegate::UpdataViewWindow(double _x, double _y, int _width,
@@ -197,8 +184,8 @@ VtuberDelegate::~VtuberDelegate() {}
 
 void VtuberDelegate::InitializeCubism()
 {
-    _cubismOption.LogFunction = LAppPal::PrintMessage;
-    _cubismOption.LoggingLevel = Define::CubismLoggingLevel;
+    //_cubismOption.LogFunction = Pal::PrintMessage;
+    //_cubismOption.LoggingLevel = Define::CubismLoggingLevel;
     Csm::CubismFramework::StartUp(&_cubismAllocator, &_cubismOption);
 
     //Initialize cubism
@@ -209,56 +196,6 @@ void VtuberDelegate::InitializeCubism()
 
     //default proj
     CubismMatrix44 projection;
-}
-
-GLuint VtuberDelegate::CreateShader()
-{
-    //バーテックスシェーダのコンパイル
-    GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-    const char* vertexShader =
-        "#version 120\n"
-        "attribute vec3 position;"
-        "attribute vec2 uv;"
-        "varying vec2 vuv;"
-        "void main(void){"
-        "    gl_Position = vec4(position, 1.0);"
-        "    vuv = uv;"
-        "}";
-    glShaderSource(vertexShaderId, 1, &vertexShader, NULL);
-    glCompileShader(vertexShaderId);
-    if(!CheckShader(vertexShaderId))
-    {
-        return 0;
-    }
-
-    //フラグメントシェーダのコンパイル
-    GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-    const char* fragmentShader =
-        "#version 120\n"
-        "varying vec2 vuv;"
-        "uniform sampler2D texture;"
-        "uniform vec4 baseColor;"
-        "void main(void){"
-        "    gl_FragColor = texture2D(texture, vuv) * baseColor;"
-        "}";
-    glShaderSource(fragmentShaderId, 1, &fragmentShader, NULL);
-    glCompileShader(fragmentShaderId);
-    if (!CheckShader(fragmentShaderId))
-    {
-        return 0;
-    }
-
-    //プログラムオブジェクトの作成
-    GLuint programId = glCreateProgram();
-    glAttachShader(programId, vertexShaderId);
-    glAttachShader(programId, fragmentShaderId);
-
-    // リンク
-    glLinkProgram(programId);
-
-    glUseProgram(programId);
-
-    return programId;
 }
 
 bool VtuberDelegate::isLoadResource(int id)
@@ -289,27 +226,4 @@ double VtuberDelegate::GetX(int id)
 double VtuberDelegate::GetY(int id)
 {
 	return _renderInfo[id].viewPoint_y;
-}
-
-bool VtuberDelegate::CheckShader(GLuint shaderId)
-{
-    GLint status;
-    GLint logLength;
-    glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0)
-    {
-        GLchar* log = reinterpret_cast<GLchar*>(CSM_MALLOC(logLength));
-        glGetShaderInfoLog(shaderId, logLength, &logLength, log);
-        CubismLogError("Shader compile log: %s", log);
-        CSM_FREE(log);
-    }
-
-    glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
-    if (status == GL_FALSE)
-    {
-        glDeleteShader(shaderId);
-        return false;
-    }
-
-    return true;
 }

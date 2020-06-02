@@ -34,11 +34,7 @@ void VtuberFrameWork::ReanderVtuber(int targatid, char *data, int bufferWidth,
 
     if (isLoad) {
     
-    if (initCount == 0 && isInit) {
-        VtuberDelegate::GetInstance()->Release();
-	goto end;
-    }
-    if (initCount>0&&!isInit) {
+    if (initCount>0 && !isInit) {
 	    isInit = true;
 	    VtuberDelegate::GetInstance()->Initialize();
     }
@@ -56,6 +52,10 @@ void VtuberFrameWork::UinitVtuber(int id)
     mut.lock();    
     initCount--;
     VtuberDelegate::GetInstance()->ReleaseResource(id);
+    if (initCount == 0 && isInit) {
+	    isInit = false;
+	    VtuberDelegate::GetInstance()->Release();
+    }
     mut.unlock();
 }
 
@@ -73,8 +73,8 @@ void VtuberFrameWork::UpData(int id,double _x, double _y, int width, int height,
 }
 
 int VtuberFrameWork::GetWidth(int id)
-{    
-    return VtuberDelegate::GetInstance()->getBufferWidth(id);
+{
+	return VtuberDelegate::GetInstance()->getBufferWidth(id);
 }
 
 int VtuberFrameWork::GetHeight(int id)
@@ -82,20 +82,7 @@ int VtuberFrameWork::GetHeight(int id)
 	return VtuberDelegate::GetInstance()->getBufferHeight(id);
 }
 
-double VtuberFrameWork::GetScale(int id)
-{
-	return VtuberDelegate::GetInstance()->getScale(id);
-}
 
-double VtuberFrameWork::GetX(int id)
-{
-	return VtuberDelegate::GetInstance()->GetX(id);
-}
-
-double VtuberFrameWork::GetY(int id)
-{
-	return VtuberDelegate::GetInstance()->GetY(id);
-}
 
 
 

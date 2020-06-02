@@ -30,16 +30,12 @@ namespace Define {
     const csmInt32 PriorityNormal = 2;
     const csmInt32 PriorityForce = 3;
 
-    // デバッグ用ログの表示オプション
-    const csmBool DebugLogEnable = false;
-    const csmBool DebugTouchLogEnable = false;
-
     // Frameworkから出力するログのレベル設定
     const CubismFramework::Option::LogLevel CubismLoggingLevel = CubismFramework::Option::LogLevel_Verbose;
-
+    const csmBool DebugMod = true;
 
     // デフォルトのレンダーターゲットサイズ
-    const csmInt32 RenderTargetWidth = 2000;
-    const csmInt32 RenderTargetHeight = 2000;
+    const csmInt32 RenderTargetWidth = 1900;
+    const csmInt32 RenderTargetHeight = 1200;
 
     }

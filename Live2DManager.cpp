@@ -10,7 +10,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <Rendering/CubismRenderer.hpp>
-#include "LAppPal.hpp"
+#include "Pal.hpp"
 #include "Define.hpp"
 #include "VtuberDelegate.hpp"
 #include "LAppModel.hpp"
@@ -22,11 +22,6 @@ using namespace std;
 
 namespace {
     Live2DManager* s_instance = NULL;
-
-    void FinishedMotion(ACubismMotion* self)
-    {
-        LAppPal::PrintLog("Motion Finished: %x", self);
-    }
 }
 
 Live2DManager* Live2DManager::GetInstance()
@@ -131,8 +126,7 @@ Csm::csmBool Live2DManager::ChangeScene(const Csm::csmChar *_modelPath,
 
     _modeldata[_id]._models.PushBack(new LAppModel());
 
-    if (_modeldata[_id]._models[0]->LoadAssets(modelPath.c_str(),
-					       modelJsonName.c_str())) {
+    if (_modeldata[_id]._models[0]->LoadAssets(modelPath.c_str(),modelJsonName.c_str())) {
 	    _modeldata[_id]._modelPath = _modelPath;
     }
     else {

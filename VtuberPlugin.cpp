@@ -131,9 +131,9 @@ obs_properties_t * VtuberPlugin::VtuberPlugin::VtuberGetProperties(void *data)
 	fill_vtuber_model_list(p, vtb);*/
 	//obs_property_set_modified_callback(p, vtuber_model_callback);
 	
-	obs_properties_add_int(ppts, "width", obs_module_text("Width"), 128, 1920, 32);
-	obs_properties_add_int(ppts, "height", obs_module_text("Height"), 128, 1050, 32);
-	obs_properties_add_float_slider(ppts,"scale",obs_module_text("Scale"),0.5,10.0,0.1);
+	obs_properties_add_int(ppts, "width", obs_module_text("Width"), 32, 1900, 32);
+	obs_properties_add_int(ppts, "height", obs_module_text("Height"), 32, 1080, 32);
+	obs_properties_add_float_slider(ppts,"scale",obs_module_text("Scale"),0.1,10.0,0.1);
 	obs_properties_add_float_slider(ppts, "x", obs_module_text("X"), -3.0, 3.0, 0.1);
 	obs_properties_add_float_slider(ppts, "y", obs_module_text("Y"), -3.0, 3.0, 0.1);
 	obs_properties_add_float_slider(ppts, "delay", obs_module_text("Speed"), 0.0, 10.0, 0.1);
@@ -171,7 +171,7 @@ void VtuberPlugin::VtuberPlugin::Vtuber_defaults(
 	obs_data_set_default_int(settings, "width", 960);
 	obs_data_set_default_int(settings, "height", 960);
 	obs_data_set_default_double(settings, "x", 0);
-	obs_data_set_default_double(settings, "y", 0.3);
+	obs_data_set_default_double(settings, "y", 0);
 	obs_data_set_default_double(settings, "scale", 1.7);
 	obs_data_set_default_double(settings, "delaytime", 1.0);
 	obs_data_set_default_bool(settings, "random_motion", true);

@@ -61,8 +61,6 @@ public:
 
     void Release();
 
-    GLuint CreateShader();
-
     bool isLoadResource(int id);
 
     int getBufferWidth(int id);
@@ -119,10 +117,6 @@ private:
     */
     void InitializeCubism();
 
-    /**
-     * @brief   CreateShader内部関数 エラーチェック
-     */
-    bool CheckShader(GLuint shaderId);
 
     LAppAllocator _cubismAllocator;              ///< Cubism SDK Allocator
     Csm::CubismFramework::Option _cubismOption;  ///< Cubism SDK Option
@@ -133,7 +127,7 @@ private:
     char *ModelFileName[MAXMODELCOUNT];		///模型文件夹的名称集合
     int ModelFileCount;				///模型数量
 
-    RenderInfo _renderInfo[8];
+    RenderInfo _renderInfo[MAXMODELCOUNT];
     };
  
 

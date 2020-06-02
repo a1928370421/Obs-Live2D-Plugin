@@ -19,12 +19,6 @@ public:
 	static int GetWidth(int id);
 
 	static int GetHeight(int id);
-
-	static double GetScale(int id);
-
-	static double GetX(int id);
-
-	static double GetY(int id);
 };
 
 

@@ -11,7 +11,6 @@
 * Support Cubism3+ (.model3.json .moc3)
 * Not Support .mtn (Motion Data File)
 # 如何使用
-## 第一步 
 * 下载 [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/releases/download/0.2.02/obs-plugins.zip)
 * 解压缩文件把 live2d_plugin.dll 放入 obs-plugins/64bit/
 * 运行obs，添加live2d 源

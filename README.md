@@ -1,18 +1,23 @@
-# OBS Live2d 插件 Plugin
+# OBS Live2d Plugin
  Obs Live2d 插件
+ This plugin is based on the built in Live2d CubismNativeFrameWork. 
+ It's showing Live2d Model on screen. 
 # 支持
 * 支持 OBS Studio version** : 25.0.0+
 * 支持 Cubism3+ (.model3.json .moc3)
 * 不支持 .mtn 动作文件
-# 这个插件干什么用😳
-* 在直播间放入一个萌妹子，然后..额 除了会卖萌没啥用(随机播放设置好的动作&卖萌)
+# Support
+* Support OBS Studio version** : 25.0.0+
+* Support Cubism3+ (.model3.json .moc3)
+* Not Support .mtn (Motion Data File)
 # 如何使用
 ## 第一步 
 * 下载 [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/live2d_plugin.zip)
 * 解压缩文件把 live2d_plugin.dll 放入 obs-plugins/64bit/
-## 第二步
-* 在OBS的根目录下创建Resources文件夹
-* 在创建好的Resources文件夹里放入Live2d导出的模型
+* 运行obs，添加live2d 源
+# How to use
+* Download [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/live2d_plugin.zip)
+
 # 效果展示
 * ![vt.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt.PNG)
 * ![vt2.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt2.PNG)

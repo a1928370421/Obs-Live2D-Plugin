@@ -17,7 +17,7 @@
 # How to use
 * Download [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/releases/download/0.2.02/obs-plugins.zip)
 * Unzip file to obs-plugins/64bit/
-* Launch OBS add Live2d Sources.
+* Launch OBS and add Live2d Sources.
 # 效果展示
 * ![vt.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt.PNG)
 * ![vt2.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt2.PNG)

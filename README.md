@@ -12,17 +12,18 @@
 * Not Support .mtn (Motion Data File)
 # 如何使用
 ## 第一步 
-* 下载 [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/live2d_plugin.zip)
+* 下载 [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/releases/download/0.2.02/obs-plugins.zip)
 * 解压缩文件把 live2d_plugin.dll 放入 obs-plugins/64bit/
 * 运行obs，添加live2d 源
 # How to use
-* Download [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/live2d_plugin.zip)
-
+* Download [obs-plugins.zip ](https://github.com/a1928370421/Obs-Live2D-Plugin/releases/download/0.2.02/obs-plugins.zip)
+* Unzip file to obs-plugins/64bit/
+* Launch OBS add Live2d Sources.
 # 效果展示
 * ![vt.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt.PNG)
 * ![vt2.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt2.PNG)
 * ![vt3.PNG](https://github.com/a1928370421/Obs-Live2D-Plugin/blob/master/Resources/vt3.gif)
-# 如何编译
-* 施工中...
 # 资源
+* Models from [少女咖啡枪 girls cafe gun] [http://www.komoejoy.com/GirlCafeGun/]
+#Resource
 * Models from [少女咖啡枪 girls cafe gun] [http://www.komoejoy.com/GirlCafeGun/]

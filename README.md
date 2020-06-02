@@ -1,7 +1,7 @@
 # OBS Live2d 插件 Plugin
  Obs Live2d 插件
 # 支持
-* 支持 OBS Studio version** : 24.0.0+
+* 支持 OBS Studio version** : 25.0.0+
 * 支持 Cubism3+ (.model3.json .moc3)
 * 不支持 .mtn 动作文件
 # 这个插件干什么用😳
